@@ -8,7 +8,7 @@ https://www.vivaolinux.com.br/dica/Criando-um-ambiente-para-programar-em-Cobol-u
 
 ### Scripts para testes do Compilador
 
-- [ ] mm
+- [x] mm
 - [ ] fibonacci(n)
 - [x] fatorial(n)
 - [ ] busca-binaria
