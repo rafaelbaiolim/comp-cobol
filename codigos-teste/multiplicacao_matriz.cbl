@@ -16,15 +16,15 @@
        01 ARRAY.
            02 X OCCURS 10 TIMES.
                03 Y OCCURS 10 TIMES.
-                   04 A PIC 9(3).
-                   04 B PIC 9(3).
-                   04 R PIC 9(3).
+                   04 A PIC S9(3).
+                   04 B PIC S9(3).
+                   04 R PIC S9(3).
        01 L_A PIC 9(1).
        01 C_A PIC 9(1).
        01 L_B PIC 9(1).
        01 C_B PIC 9(1).
-       01 VALOR PIC 9(3).
-       01 ELEMENTO PIC 9(3).
+       01 VALOR PIC S9(3).
+       01 ELEMENTO PIC S9(3).
        PROCEDURE DIVISION.
        MAIN-PROCEDURE.
            DISPLAY "Informe a quantidade de linhas da matriz A: ".
@@ -80,8 +80,10 @@
            MOVE ELEMENTO TO R(L_A,C_B).
 
        CALC-E.
-           COMPUTE VALOR = A(L_A,C_A) * B(L_B,C_B).
-           ADD VALOR TO ELEMENTO.
+           IF (C_A = L_B) THEN
+             COMPUTE VALOR = A(L_A,C_A) * B(L_B,C_B)
+             ADD VALOR TO ELEMENTO
+             END-IF.
 
        DSP-E.
            DISPLAY "("L_A","C_B") = "R(L_A,C_B).
