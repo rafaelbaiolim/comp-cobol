@@ -1,0 +1,31 @@
+Producao 1 : S-XYZ
+Producao 2 : X-aXb
+Producao 3 : X-E
+Producao 4 : Y-cYZcX
+Producao 5 : Y-d
+Producao 6 : Z-gZYg
+Producao 7 : Z-f
+--------------------------------------------
+FIRST(S) = {  a  c  d }
+FIRST(X) = {  a  E }
+FIRST(Y) = {  c  d }
+FIRST(Z) = {  g  f }
+--------------------------------------------
+FOLLOW(S) = {  $ }
+FOLLOW(X) = {  c  d  b  g  f }
+FOLLOW(Y) = {  g  f }
+FOLLOW(Z) = {  $  c  d }
+--------------------------------------------
+TABELA[S,a] =  X Y Z
+TABELA[S,c] =  X Y Z
+TABELA[S,d] =  X Y Z
+TABELA[X,a] =  a X b
+TABELA[X,c] =  a X b
+TABELA[X,d] =  a X b
+TABELA[X,b] =  a X b
+TABELA[X,g] =  a X b
+TABELA[X,f] =  a X b
+TABELA[Y,c] =  E
+TABELA[Y,d] =  E
+TABELA[Z,g] =  c Y Z c X
+TABELA[Z,f] =  c Y Z c X

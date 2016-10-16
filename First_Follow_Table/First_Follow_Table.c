@@ -7,11 +7,14 @@ void lerArquivo();
 void montarMatrizProducao();
 void executarFirst();
 void executarFollow();
+void executarTabelaParser();
 void addArrayResultado(char[], char);
 void first(char* pResultado, char pLetra, int pIndiceFollow);
 void follow(char[], char);
+void tabelaParser(char* pResultado, char pSimbolo, char pTerminal);
 
 FILE *arquivo;
+FILE *arquivoSaida;
 int nroProducao;
 char matrizProducao[100][100];
 char arrayProducao[50];
@@ -22,12 +25,14 @@ int main()
 
     executarFirst();
     executarFollow();
+    executarTabelaParser();
 
 	fclose(arquivo);
 }
 
 void lerArquivo(){
-	arquivo = fopen("CFG.txt", "r");
+	arquivo = fopen("Entrada.txt", "r");
+	arquivoSaida = fopen("Saida.txt", "w");
 
     if(arquivo == NULL)
     {
@@ -38,6 +43,8 @@ void lerArquivo(){
 	{
 		montarMatrizProducao();
 	}
+	
+	printf("Arquivo 'Saida' criado com sucesso na pasta do projeto!\n\n");
 }
 
 void montarMatrizProducao(){
@@ -52,7 +59,7 @@ void montarMatrizProducao(){
 
 	while (fscanf(arquivo, "%s", producaoAUX[nroProducao]) == 1)
 	{
-		//Irá montar a matrizProducao e verifica se existe o delimitador "|" nas produções
+		//Ira montar a matrizProducao e verifica se existe o delimitador "|" nas producoes
 		ptr = strchr(producaoAUX[nroProducao], '|');
 	    if (ptr != NULL)
 	    {
@@ -70,8 +77,8 @@ void montarMatrizProducao(){
 	    		strcat(matrizProducao[nroProducao], auxExpressao);
 	    		strcat(matrizProducao[nroProducao], token);
 
-	    		printf("Producao %d : ", nroProducao+1);
-				printf("%s\n", matrizProducao[nroProducao]);
+	    		fprintf(arquivoSaida,"Producao %d : ", nroProducao+1);
+				fprintf(arquivoSaida,"%s\n", matrizProducao[nroProducao]);
 				nroProducao++;
 
 	    		token = strtok(NULL, "|");
@@ -81,8 +88,8 @@ void montarMatrizProducao(){
 		{
 			strncpy(matrizProducao[nroProducao],producaoAUX[nroProducao],100);
 
-			printf("Producao %d : ", nroProducao+1);
-			printf("%s\n", matrizProducao[nroProducao]);
+			fprintf(arquivoSaida,"Producao %d : ", nroProducao+1);
+			fprintf(arquivoSaida,"%s\n", matrizProducao[nroProducao]);
 			nroProducao++;
 		}
 	}
@@ -96,6 +103,8 @@ void executarFirst(){
 
     memset(&resultado[0], 0, sizeof(resultado));
     memset(&arrayResultado[0], 0, sizeof(arrayResultado));
+    
+    fprintf(arquivoSaida,"--------------------------------------------\n");
 
 	for (i = 0; i < nroProducao; i++)
     {
@@ -107,10 +116,10 @@ void executarFirst(){
     {
     	c = arrayResultado[i];
         first(resultado, c, -1);
-		printf("\nFIRST(%c)= { ", c);
-        for(j=0; resultado[j] != '\0'; j++)
-        	printf(" %c ", resultado[j]);
-        printf("}\n");
+		fprintf(arquivoSaida,"FIRST(%c) = { ", c);
+        for (j=0; resultado[j] != '\0'; j++)
+        	fprintf(arquivoSaida," %c ", resultado[j]);
+        fprintf(arquivoSaida,"}\n");
     }
 }
 
@@ -122,6 +131,8 @@ void executarFollow(){
 
     memset(&resultado[0], 0, sizeof(resultado));
     memset(&arrayResultado[0], 0, sizeof(arrayResultado));
+    
+    fprintf(arquivoSaida,"--------------------------------------------\n");
 
 	for (i = 0; i < nroProducao; i++)
     {
@@ -133,10 +144,102 @@ void executarFollow(){
 	{
 		c = arrayResultado[i];
         follow(resultado, c);
-		printf("\nFOLLOW(%c)= { ", c);
-        for(j=0; resultado[j] != '\0'; j++)
-        	printf(" %c ", resultado[j]);
-        printf("}\n");
+		fprintf(arquivoSaida,"FOLLOW(%c) = { ", c);
+        for (j=0; resultado[j] != '\0'; j++)
+        	fprintf(arquivoSaida," %c ", resultado[j]);
+        fprintf(arquivoSaida,"}\n");
+    }
+}
+
+void executarTabelaParser(){
+	int i, j, k;
+	int encontrouVazio;
+    char simbolo, terminal;
+    char resultado[50];    
+    char arraySimbolo[50];
+    char arrayTerminal[50];
+
+    memset(&resultado[0], 0, sizeof(resultado));
+    memset(&arraySimbolo[0], 0, sizeof(arraySimbolo));
+    memset(&arrayTerminal[0], 0, sizeof(arrayTerminal));
+    
+    fprintf(arquivoSaida,"--------------------------------------------\n");
+
+	for (i = 0; i < nroProducao; i++)
+    {
+    	simbolo = matrizProducao[i][0];
+		addArrayResultado(arraySimbolo, simbolo);
+		
+		for (j = 2; j < strlen(matrizProducao[i]); j++)
+		{
+			terminal = matrizProducao[i][j];
+			if(!(isupper(terminal)))
+				addArrayResultado(arrayTerminal, terminal);
+		}
+	}
+	
+	addArrayResultado(arrayTerminal, '$');
+	/*
+	for (i = 0; i < strlen(arraySimbolo); i++)
+    {
+    	simbolo = arraySimbolo[i];
+    	for (j = 0; j < strlen(arrayTerminal); j++)
+   		{
+   			terminal = arrayTerminal[j];
+   			
+   			if (terminal != '$'){
+	   			tabelaParser(resultado, simbolo, terminal);
+	   			
+	   			fprintf(arquivoSaida,"TABELA[%c,%c] = ", simbolo, terminal);
+		        for(k=0; resultado[k] != '\0'; k++)
+		        	fprintf(arquivoSaida," %c", resultado[k]);
+	        	fprintf(arquivoSaida,"\n");
+	    	}
+   		}
+    }
+    */
+    
+    for(i = 0; i < strlen(arraySimbolo); i++)
+    {
+    	encontrouVazio = 0;
+    	
+    	simbolo = arraySimbolo[i];
+		first(resultado, simbolo, -1);
+    	
+    	for(j = 0; j < strlen(resultado); j++)
+		{	
+			terminal = resultado[j];
+			
+			if (terminal != 'E') 
+			{
+				fprintf(arquivoSaida,"TABELA[%c,%c] = ", simbolo, terminal);
+				for (k = 2; k < strlen(matrizProducao[i]); k++)
+		        	fprintf(arquivoSaida," %c", matrizProducao[i][k]);
+	        	fprintf(arquivoSaida,"\n");
+	    	}	
+	    	else
+	    		encontrouVazio = 1;
+		}   
+		
+		if (encontrouVazio) 
+		{
+			follow(resultado, simbolo);
+			
+			for(j = 0; j < strlen(resultado); j++)
+			{	
+				terminal = resultado[j];
+				
+				if (terminal != 'E') 
+				{
+					fprintf(arquivoSaida,"TABELA[%c,%c] = ", simbolo, terminal);
+					for (k = 2; k < strlen(matrizProducao[i]); k++)
+			        	fprintf(arquivoSaida," %c", matrizProducao[i][k]);
+		        	fprintf(arquivoSaida,"\n");
+		    	}	
+		    	else
+		    		encontrouVazio = 1;
+			} 
+		}
     }
 }
 
@@ -161,14 +264,14 @@ void first(char* pResultado, char pLetra, int pIndiceFollow)
     memset(&pResultado[0], 0, sizeof(pResultado));
     memset(&subResultado[0], 0, sizeof(subResultado));
 
-    //Verifica se é um terminal
+    //Verifica se eh um terminal
     if(!(isupper(pLetra)))
     {
         addArrayResultado(pResultado, pLetra);
         return ;
     }
 
-	//Se não é um terminal verifica as produções
+	//Se n?o ? um terminal verifica as producoes
     for(i = 0; i < nroProducao; i++)
     {
 	    if(matrizProducao[i][0] == pLetra)
@@ -251,4 +354,23 @@ void follow(char* pResultado, char pLetra)
 		    }
 		}
 	}
+}
+
+void tabelaParser(char* pResultado, char pSimbolo, char pTerminal)
+{
+	char resultado[50];
+	
+	memset(&pResultado[0], 0, sizeof(pResultado));
+	
+	first(resultado, pSimbolo, -1);
+	/*	
+	if (encontrouVazio(resultado))
+	{
+		follow(resultado, pSimbolo);
+	}
+	
+	if (encontrouFim(resultado)){
+		//M[pSimbolo,'$'] = producao
+	}
+	*/
 }
