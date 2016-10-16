@@ -1,4 +1,7 @@
 S-XYZ
-X-aXb|E
-Y-cYZcX|d
-Z-gZYg|f
+X-aXb
+X-E
+Y-cYZcX
+Y-d
+Z-gZYg
+Z-f

@@ -154,6 +154,7 @@ void executarFollow(){
 void executarTabelaParser(){
 	int i, j, k;
 	int encontrouVazio;
+	int encontrouFim;
     char simbolo, terminal;
     char resultado[50];    
     char arraySimbolo[50];
@@ -199,11 +200,12 @@ void executarTabelaParser(){
     }
     */
     
-    for(i = 0; i < strlen(arraySimbolo); i++)
+    for(i = 0; i < nroProducao; i++)
     {
     	encontrouVazio = 0;
+    	encontrouFim = 0;
     	
-    	simbolo = arraySimbolo[i];
+    	simbolo = matrizProducao[i][0];
 		first(resultado, simbolo, -1);
     	
     	for(j = 0; j < strlen(resultado); j++)
@@ -212,10 +214,13 @@ void executarTabelaParser(){
 			
 			if (terminal != 'E') 
 			{
-				fprintf(arquivoSaida,"TABELA[%c,%c] = ", simbolo, terminal);
-				for (k = 2; k < strlen(matrizProducao[i]); k++)
-		        	fprintf(arquivoSaida," %c", matrizProducao[i][k]);
-	        	fprintf(arquivoSaida,"\n");
+				if (matrizProducao[i][2] != 'E')
+				{
+					fprintf(arquivoSaida,"TABELA[%c,%c] = ", simbolo, terminal);
+					for (k = 2; k < strlen(matrizProducao[i]); k++)
+			        	fprintf(arquivoSaida," %c", matrizProducao[i][k]);
+		        	fprintf(arquivoSaida,"\n");
+		    	}
 	    	}	
 	    	else
 	    		encontrouVazio = 1;
@@ -229,16 +234,25 @@ void executarTabelaParser(){
 			{	
 				terminal = resultado[j];
 				
-				if (terminal != 'E') 
+				if (terminal == '$') 
 				{
 					fprintf(arquivoSaida,"TABELA[%c,%c] = ", simbolo, terminal);
 					for (k = 2; k < strlen(matrizProducao[i]); k++)
 			        	fprintf(arquivoSaida," %c", matrizProducao[i][k]);
 		        	fprintf(arquivoSaida,"\n");
+		        	
+		        	if (terminal == '$')
+						encontrouFim = 1;
 		    	}	
-		    	else
-		    		encontrouVazio = 1;
 			} 
+		}
+		
+		if (encontrouVazio && encontrouFim)
+		{
+			fprintf(arquivoSaida,"TABELA[%c,$] = ", simbolo);
+			for (k = 2; k < strlen(matrizProducao[i]); k++)
+	        	fprintf(arquivoSaida," %c", matrizProducao[i][k]);
+        	fprintf(arquivoSaida,"\n");
 		}
     }
 }
