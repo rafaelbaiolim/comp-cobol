@@ -5,10 +5,11 @@ Repositório Destinado ao sofrimento e lamentação de um compilador de COBOL em
 
 OpenCobol
 ---
+>  $sudo apt-get install open-cobol.
 
-> $sudo apt-get install open-cobol
-.
-> $sudo apt-get install python3-pyqt5
+  
+
+>  $sudo apt-get install python3-pyqt5.
 
 IDE
 ----
@@ -18,7 +19,7 @@ https://launchpad.net/cobcide/+download
 ### Scripts para testes do Compilador
 
 - [x] mm
-- [ ] fibonacci(n)
+- [x] fibonacci(n)
 - [x] fatorial(n)
 - [ ] busca-binaria
 - [ ] contaVetor(n) 
