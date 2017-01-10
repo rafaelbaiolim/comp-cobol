@@ -1,6 +1,4 @@
-using namespace std;
-
-const string KEYWORDS[] = {
+const char* KEYWORDS[] = {
     "ACCEPT",              "ALPHABETIC-LOWER", "APPLY",           "ACCESS",         "ALPHABETIC-UPPER",
     "ARE",                 "ADD",              "ALPHANUMERIC",    "AREA",           "ADDRESS",
     "ALPHANUMERIC-EDITED", "AREAS",            "ADVANCING",       "ALSO",           "ASCENDING",
@@ -87,6 +85,8 @@ const string KEYWORDS[] = {
     "ZEROES",              "ZEROS"
 };
 
-const string RELOP[] = {
+const char *ops = "+-*/";
+
+const char* RELOP[] = {
 	"=", "<", ">", "NOT =", "NOT >", "NOT <"
 };
