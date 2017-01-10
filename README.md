@@ -22,7 +22,7 @@ https://launchpad.net/cobcide/+download
 - [x] fibonacci(n)
 - [x] fatorial(n)
 - [ ] busca-binaria
-- [ ] contaVetor(n) 
+- [x] contaVetor(n) 
 - [ ] bolha
 - [ ] determinante
-- [ ] matrizTransposta
+- [x] matrizTransposta

@@ -51,6 +51,8 @@
            PERFORM READ-A VARYING L_A FROM 1 BY 1 UNTIL L_A > MAL
                AFTER C_A FROM 1 BY 1 UNTIL C_A > MAC.
 
+           DISPLAY " ".
+
            DISPLAY "Informe os elementos da matriz B: ".
            PERFORM READ-B VARYING L_B FROM 1 BY 1 UNTIL L_B > MBL
                AFTER C_B FROM 1 BY 1 UNTIL C_B > MBC.
