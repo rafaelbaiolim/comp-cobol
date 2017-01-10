@@ -23,6 +23,6 @@ https://launchpad.net/cobcide/+download
 - [x] fatorial(n)
 - [x] busca-binaria
 - [x] contaVetor(n) 
-- [ ] bolha
+- [x] bolha
 - [ ] determinante
 - [x] matrizTransposta

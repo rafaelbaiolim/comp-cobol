@@ -39,7 +39,7 @@
            MOVE 1 TO INF.
            COMPUTE SUP = NUM.
 
-           PERFORM BUSCA UNTIL INF > SUP
+           PERFORM BUSCA UNTIL INF > SUP.
 
            DISPLAY "Elemento nao encontrado!".
 
