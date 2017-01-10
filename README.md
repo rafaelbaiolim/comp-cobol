@@ -21,7 +21,7 @@ https://launchpad.net/cobcide/+download
 - [x] mm
 - [x] fibonacci(n)
 - [x] fatorial(n)
-- [ ] busca-binaria
+- [x] busca-binaria
 - [x] contaVetor(n) 
 - [ ] bolha
 - [ ] determinante
