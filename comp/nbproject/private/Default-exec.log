@@ -1,0 +1,28 @@
+called: gcc
+	/home/rafaellb/Documents/main/Compilador
+	gcc
+	-g
+	-O0
+	-Wall
+	-I.
+	-I.
+	-MG
+	-MP
+	-MT./Debug/main.c.o
+	-MF./Debug/main.c.o.d
+	-MM
+	main.c
+
+called: /usr/bin/gcc
+	/home/rafaellb/Documents/main/Compilador
+	gcc
+	-c
+	/home/rafaellb/Documents/main/Compilador/main.c
+	-g
+	-O0
+	-Wall
+	-o
+	./Debug/main.c.o
+	-I.
+	-I.
+

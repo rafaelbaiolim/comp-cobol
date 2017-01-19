@@ -1,44 +1,26 @@
+#include <stdio.h>
+#include <assert.h>
+//#include <string.h>
+#define __XPG4 // itoa, strccase
+#define __UU
+#define __OE_8
+#include <stdlib.h>
+
 #include <string.h>
-#include <ctype.h>
-#include "constantes.h"
-#include "cab.h"
-#include "lex.h"
 
+#include "debug.h"
+#include "generate.h"
+#include "tokenize.h"
+#include "check.h"
+#include "rexxCom.h"
+FILE *file;
 
-char imprime_token(Token* tok){
-    printf("\n%i\n",tok->valor);
+extern token lookahead;
+extern _srcLine   *curr_src_line; 
+
+int main(int argc, char** argv){
+    getNextToken();
+    debug_1(" END MAIN. \n");
+    return 0;
 }
 
-int main(int argc, char** argv)
-{
-    char c;
-    file = fopen("test.txt", "r");
-
-    char entrada[200];
-    Token tok;
-    printf("Analise Lexica para Expressoes\n");
-    printf("Expressao: ");
-    fgets(entrada, 200, file);
- 
-    inicializa_analise(entrada);
-//    printf("\n===== Analise =====\n");
-    while(proximo_token(&tok) != NULL) {
-        imprime_token(&tok);
-    }
-    
-    
-    
-//    printf("\n");
-//    return 0;
-//
-//    printf("TOKEN %i : %s\n", 1, getToken());
-//
-//    printf("TOKEN %i : %s\n", 2, getToken());
-//
-//    puts("\n**Suposto erro ocorreu\n");
-//    fseek(file, crrFilePointer, SEEK_END);
-//    printf("TOKEN %i : %s\n", 3, getToken());
-//
-//    fclose(file);
-//    return 0;
-}
