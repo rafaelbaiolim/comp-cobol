@@ -21,6 +21,7 @@ extern token lookahead;
 
 token getNextToken(){
     /* made static to preserve value after recursive call */
+    curr_src_line = "DISPLAY \"TESTE\""; 
     static token _ret;
     ln_str_num next_ln;
 
