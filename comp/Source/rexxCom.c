@@ -33,7 +33,7 @@ int getArgsRexx(char* src_file) {
       
        src_list = getSource(src_file,0);
 
-       curr_src_line = getCurrSrcLine(src_list,0,0);
+       curr_src_line = getCurrSrcLine(src_list,1,1);
 
 }
 
