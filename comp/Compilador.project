@@ -103,7 +103,6 @@
     <File Name="Source/tokenize.c"/>
     <File Name="Include/ast.h"/>
     <File Name="Include/check.h"/>
-    <File Name="Include/debug.h"/>
     <File Name="Include/generate.h"/>
     <File Name="Include/grammar.h"/>
     <File Name="Include/helper.h"/>
@@ -111,6 +110,7 @@
     <File Name="Include/rexxCom.h"/>
     <File Name="Include/tokenize.h"/>
     <File Name="main.c"/>
+    <File Name="debug.h"/>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>
   <Dependencies Name="Release"/>

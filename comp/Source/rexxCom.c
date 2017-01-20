@@ -23,85 +23,17 @@ _srcLine   *src_list;
 _srcLine   *curr_src_line;
 
 /* bug connu : rawcode depasse le code reel par 14 car à la fin */
-int getArgsRexx() {
+int getArgsRexx(char* src_file) {
 
        int    i=0;
        int    rawCode_length=0;
        int    rawCode_mod_80=0;
        int    rawCode_div_80=0;
 
-       debug_3("osplist 0 : %s \n",        __osplist[0]) ;
-
-       if ((strcmp(__osplist[0],"")) && (atoi(__osplist[0]) > 0)) {
-          argc = atoi(__osplist[0]);
-          debug_3("argc          : (%d) \n", argc);
-       }
-       else {
-          printf("getArgsRexx() : ");
-          printf("Required argument argc not found or not numeric \n");
-		  exit(EXIT_FAILURE);
-       }
-
-       debug_3("osplist 1 : %s \n",        __osplist[1]) ;
-       if ((strcmp(__osplist[1],"")) && (atoi(__osplist[1]) > 0)) {
-          cursc = atoi(__osplist[1]);
-          debug_3("cursc         : (%d) \n", cursc);
-       }
-       else {
-          printf("getArgsRexx() : ");
-          printf("Required argument cursc not found or not numeric\n");
-          exit(EXIT_FAILURE);
-       }
-
-       debug_3("osplist 2 : %s \n",        __osplist[2]) ;
-       if ((strcmp(__osplist[2],"")) && (atoi(__osplist[2]) > 0)) {
-          cursl = atoi(__osplist[2]);
-          debug_3("cursl         : (%d) \n", cursl);
-          /* current line number to increment on each read */
-          //curr_ln_num = cursl;
-       }
-       else {
-          printf("getArgsRexx() : ");
-          printf("Required argument cursl not found or not numeric\n");
-          exit(EXIT_FAILURE);
-       }
-
-       debug_3("osplist 3 : %s \n",        __osplist[3]) ;
-       if ((strcmp(__osplist[3],""))) {
-          strcpy(src_file,__osplist[3]);
-          debug_3("src_file      : (%s) \n", src_file);
-       }
-       else {
-          printf("getArgsRexx() : ");
-          printf("Required argument src_file not found \n");
-          exit(EXIT_FAILURE);
-       }
-
-       debug_3("osplist 4 : %s \n",        __osplist[4]) ;
-       if ((strcmp(__osplist[4],""))) {
-          break_str_space(__osplist[4],inc_pds,NB_INC_PDS);
-          debug_3("inc_pds(0)    : (%s) \n", inc_pds[0]);
-       }
-       else {
-          printf("getArgsRexx() : ");
-          printf("Required argument inc_pds  not found \n");
-          exit(EXIT_FAILURE);
-       }
-
-       debug_3("osplist 5 : %s \n",        __osplist[5]) ;
-       if ((strcmp(__osplist[5],""))) {
-          break_str_space(__osplist[5],options,NB_OPTIONS);
-          debug_3("options(0)    : (%s) \n", options[0]);
-       }
-       else {
-          printf("getArgsRexx() : ");
-          printf("Required argument options  not found \n");
-          exit(EXIT_FAILURE);
-       }
-
+      
        src_list = getSource(src_file,0);
 
-       curr_src_line = getCurrSrcLine(src_list,cursl,cursc);
+       curr_src_line = getCurrSrcLine(src_list,0,0);
 
 }
 

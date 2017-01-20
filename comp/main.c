@@ -8,19 +8,20 @@
 
 #include <string.h>
 
+#include "lexer.h"
 #include "debug.h"
 #include "generate.h"
 #include "tokenize.h"
 #include "check.h"
 #include "rexxCom.h"
-FILE *file;
 
 extern token lookahead;
 extern _srcLine   *curr_src_line; 
 
 int main(int argc, char** argv){
-    getNextToken();
-    debug_1(" END MAIN. \n");
+    getArgsRexx("teste.cbl");
+    lookahead = getNextToken();
+
     return 0;
 }
 

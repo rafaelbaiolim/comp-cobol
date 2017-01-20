@@ -1,15 +1,17 @@
-Debug/main.c.o: main.c debug.h generate.h ast.h helper.h tokenize.h \
- check.h rexxCom.h
+Debug/main.c.o: main.c lexer.h tokenize.h ast.h helper.h debug.h \
+ generate.h check.h rexxCom.h
 
-debug.h:
+lexer.h:
 
-generate.h:
+tokenize.h:
 
 ast.h:
 
 helper.h:
 
-tokenize.h:
+debug.h:
+
+generate.h:
 
 check.h:
 
