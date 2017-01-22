@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CodeLite_Project Name="compilador" Version="10.0.0" InternalType="Console">
+<CodeLite_Project Name="main" Version="10.0.0" InternalType="Console">
   <Description/>
   <Dependencies/>
   <Settings Type="Executable">
@@ -92,7 +92,7 @@
       </Completion>
     </Configuration>
   </Settings>
-  <VirtualDirectory Name="bosta">
+  <VirtualDirectory Name="includes">
     <File Name="../lexer.c"/>
     <File Name="../debug.h"/>
     <File Name="../grammar.h"/>
@@ -109,7 +109,12 @@
     <File Name="../ast.h"/>
     <File Name="../lexer.h"/>
     <File Name="../generate.h"/>
-    <File Name="../main.c"/>
     <File Name="../grammar.c"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="src">
+    <File Name="../main.c"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="file_input">
+    <File Name="Debug/teste.cbl"/>
   </VirtualDirectory>
 </CodeLite_Project>

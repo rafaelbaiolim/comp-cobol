@@ -74,24 +74,6 @@ token tokenizer(char* ln_8_72)
     /****/ regex_t    pregRelOp;
     /****/ regex_t    pregAritOp;
 
- /* regex_t    pregLiter1;
-    regex_t    pregLiter2;
-    regex_t    pregPerio;
-    regex_t    pregLvl66;
-    regex_t    pregLvl88;
-    regex_t    pregHexL1;
-    regex_t    pregHexL2;
-    regex_t    pregLBrack;
-    regex_t    pregRBrack;
-    regex_t    pregPlus;
-    regex_t    pregMinus;
-    regex_t    pregExpon;
-    regex_t    pregMultp;
-    regex_t    pregDivid;
-    regex_t    pregEqual;
-    regex_t    pregColon;
-    regex_t    pregDollar;
-    regex_t    pregUintgr; */
 
   /*    _____________________________________________________
       _(                                                     )_

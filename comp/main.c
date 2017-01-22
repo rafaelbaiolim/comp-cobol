@@ -29,21 +29,6 @@ int main(int argc, char** argv){
 
     getArgsRexx();
     lookahead  = getNextToken();
-    ast* sntce = get_sentence();
-
-    if(sntce){
-
-       scr_line* screen;
-       screen=init_screen();
-       debug_1("ast Chain_length = (%d) \n",chain_length(sntce));
-       debug_2("Drawing  (%s) \n",tagValues[sntce->tag]);
-       assert(sntce->tag == SENTENCE);
-       affich_node(sntce,screen);
-       debug_2("Printing (%s) \n",tagValues[sntce->tag]);
-       print_boxes(screen);
-       free_node(sntce);
-    }
-    else free_node(sntce);
 
     ast* data=NULL;
 

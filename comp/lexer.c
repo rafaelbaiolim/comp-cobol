@@ -26,6 +26,7 @@ token getNextToken()
     static token _ret;
 
     debug_3("%s", curr_src_line);
+
     _ret = tokenizer(curr_src_line);
     _ret.tkn_lnnum = curr_src_line->ln_num;
 
