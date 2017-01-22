@@ -1,5 +1,0 @@
-gcc -c  "/home/rafaellb/Documents/main/Compilador/main.c" -g -O0 -Wall  -o ./Debug/main.c.o -I. -I. 
-/home/rafaellb/Documents/main/Compilador/main.c:7:19: fatal error: token.h: No such file or directory
-compilation terminated.
-Compilador.mk:95: recipe for target 'Debug/main.c.o' failed
-make: *** [Debug/main.c.o] Error 1

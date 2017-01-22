@@ -14,7 +14,7 @@ void **__osplist;
 
 int getArgsRexx();
 int setCurrLnNum(int);
-struct _srcLine* getSource(char* src_file,int current_line);
+struct _srcLine* getSource(char* src_file);
 struct _srcLine* getCurrSrcLine(struct _srcLine* src_list,int cursl,
                                                           int cursc);
 int break_str_space(char *line,char words[][DS_NAME_LEN],int maxWords);
@@ -31,9 +31,10 @@ typedef struct _editLine {
 } _editLine;
 
 typedef struct _srcLine {
-  char   value[81];
+  char   value[1000];
   int    num_file;
   int    num_all;
+  int    ln_num;
   char   file[DS_NAME_LEN];
   struct _srcLine *next;
 } _srcLine;

@@ -130,24 +130,8 @@ token tokenizer(char* ln_8_72)
   /*   mannque plus que CR et DB pour les pic string              */
   /*--------------------------------------------------------------*/
 
-  /*char     *ptrnPicChars = "(^"                              \
-                   "([ABEGPSVXZabegpsvxz90\\+\\-\\*\\$\\/\\,\\.]+))"\
-  */          /*   "(( !,)*!\\()(.*)"; */                  \
-              /*   "(( !,)+!\\.!\\()(.*)"; */              \
-  /*               "(( !,!$)+\\.!\\.!\\()(.*)";
-  */
-  /*char     *ptrnPicChars = "(^"                              \ */
-  /* A*  */ /*     "([ABEGPSVXZabegpsvxz90\\+\\-\\*\\$\\/\\,]*"\ */
-  /* (A+ */ /*     "([ABEGPSVXZabegpsvxz90\\+\\-\\*\\$\\/\\,]+"\ */
-  /* b)  */ /*     "!\\.)"                                     \ */
-  /* A*  */ /*     "[ABEGPSVXZabegpsvxz90\\+\\-\\*\\$\\/\\,]*))"\ */
-              /*   "(( !,)*!\\()(.*)"; */
-              /*   "(( !,)+[a-zA-Z]+!( !,)*\\.!\\()(.*)"; */
-            /*     "(( !,!$)+!\\.!\\()(.*)"; */
-
-
     /****/ char *ptrnPicChars = "(^"                              \
-  /* A+  */  /*    "([ABEGPSVXZabegpsvxz90\\+\\-\\*\\$\\/\\,]+))" */\
+                    "([ABEGPSVXZabegpsvxz90\\+\\-\\*\\$\\/\\,]+))" \
                    "([-+*$/,ABEGPSVXZabegpsvxz90]+))" \
                    "(( !,!$)+!\\.!\\()(.*)";
 
@@ -583,62 +567,6 @@ token tokenizer(char* ln_8_72)
                               "\\*\\*!\\*!\\/"  /*  ** *  /  */   \
                               ")$";
 
-  /*
-    char       *ptrnLiter2 = "^( !,)*"                              \
-                            "(\"([^\"]!\"\")*\")"                   \
-                            "([^\"]!$)(.*)";
-  */
-  /*-----------------------------------*/
-  /* Pattern pour HEXA Literal X'FF'   */
-  /*-----------------------------------*/
-  /*char       *ptrnHexL1  = "^( !,)*"                              \
-                            "([Xx][\"][0-9A-Fa-f]+[\"])"            \
-                            "([^\"]!$)(.*)";
-
-    char       *ptrnHexL2  = "^( !,)*"                              \
-                            "([Xx]['][0-9A-Fa-f]+['])"              \
-                            "([^']!$)(.*)";
-  */
-  /*-----------------------------*/
-  /* Pattern pour Integer        */
-  /*-----------------------------*/
-  /*char       *ptrnIntgr = "^( !,)*"                             \
-                            "([\\+\\-]?[0-9]+)"                   \
-                            "(.)(.*)";
-  */
-  /*-----------------------------*/
-  /* Pattern pour Level Number   */
-  /*-----------------------------*/
-  /*char       *ptrnLvlnum = "([0]?[1-9]![1-4][0-9]!77)";
-
-  */
-  /*-----------------------------*/
-  /* Pattern pour Level 66       */
-  /*-----------------------------*/
-  /*char       *ptrnLvl66  = "66";
-  */
-  /*-----------------------------*/
-  /* Pattern pour Level 88       */
-  /*-----------------------------*/
-  /*char       *ptrnLvl88  = "88";
-  */
-  /*-----------------------------*/
-  /* Pattern pour Decimal        */
-  /*-----------------------------*/
-  /*char       *ptrnDecim  = "^( !,)*"                             \
-                            "([\\+\\-]?[0-9]*,[0-9]+)"             \
-                            "(.)(.*)";
-  */
-  /*-------------------------------*/
-  /* Pattern pour Unsigned integer */
-  /*-------------------------------*/
-  /*char       *ptrnUintgr  = "^([0-9]+)$";
-  */
-
-  /*---------------------------------------------------------------*/
-  /*---------------------------------------------------------------*/
-  /*---------------------------------------------------------------*/
-
     int         rc=0;
     int         i=0;
     int         j=0;
@@ -651,7 +579,10 @@ token tokenizer(char* ln_8_72)
     static char rets_data[480]="";
 
     char        args[480]="";
-
+        
+    if(ln_8_72 == 0x0){
+        return;
+    }
     strcpy(args,ln_8_72);
 
   /*---------------------------------------------------------------*/
@@ -706,61 +637,7 @@ token tokenizer(char* ln_8_72)
     pregs[j].preg =&pregEndLine;
     j++;
 
-    /* Space ??
-    pregs[j].name ="SPACE";
-    pregs[j].ptrn =ptrnSpace;
-    pregs[j].preg =&pregSpace;
-    j++; */
-
- /* pregs[j].name ="KEYWORD";
-    pregs[j].ptrn =ptrnKeywoAll;
-    pregs[j].preg =&pregKeywoAll;
-    j++;
-    pregs[j].name ="SPECIAL REGISTER";
-    pregs[j].ptrn =ptrnSpclReg;
-    pregs[j].preg =&pregSpclReg;
-    j++;
-    pregs[j].name ="FIGURATIVE CONST";
-    pregs[j].ptrn =ptrnFgrtvConst;
-    pregs[j].preg =&pregFgrtvConst;
-    j++;
-    pregs[j].name ="HEXLITERAL";
-    pregs[j].ptrn =ptrnHexL1;
-    pregs[j].preg =&pregHexL1;
-    j++;
-    pregs[j].name ="HEXLITERAL";
-    pregs[j].ptrn =ptrnHexL2;
-    pregs[j].preg =&pregHexL2;
-    j++;
-    pregs[j].name ="IDENTIFIER";
-    pregs[j].ptrn =ptrnIdent;
-    pregs[j].preg =&pregIdent;
-    j++;
-    pregs[j].name ="LITERAL";
-    pregs[j].ptrn =ptrnLiter1;
-    pregs[j].preg =&pregLiter1;
-    j++;
-    pregs[j].name ="LITERAL";
-    pregs[j].ptrn =ptrnLiter2;
-    pregs[j].preg =&pregLiter2;
-    j++;
-    pregs[j].name ="DECIMAL";
-    pregs[j].ptrn =ptrnDecim;
-    pregs[j].preg =&pregDecim;
-    j++;
-    pregs[j].name ="INTEGER";
-    pregs[j].ptrn =ptrnIntgr;
-    pregs[j].preg =&pregIntgr;
-    j++;
-    pregs[j].name ="SYMBOL";
-    pregs[j].ptrn =ptrnSymbols;
-    pregs[j].preg =&pregSymbols;
-    j++;
-    pregs[j].name="ENDLINE";
-    pregs[j].ptrn=ptrnEndLine;
-    pregs[j].preg=&pregEndLine;
-    j++;
-  */
+  
     nb_regex_for_type = j;
 
   /*---------------------------------------------------------------*/
@@ -807,68 +684,7 @@ token tokenizer(char* ln_8_72)
        pregs[j].ptrn =ptrnEndLine;
        pregs[j].preg =&pregEndLine;
        j++;
-/*
-       pregs[j].name ="PICCHARS";
-       pregs[j].ptrn =ptrnPicChars;
-       pregs[j].preg =&pregPicChars;
-       j++;
-*/   /*pregs[j].name ="SYMBOL";
-       pregs[j].ptrn =ptrnPerio;
-       pregs[j].preg =&pregPerio;
-       j++;*/
-/*     pregs[j].name ="SYMBOL";
-       pregs[j].ptrn =ptrnSymbols;
-       pregs[j].preg =&pregSymbols;
-       j++;
-       pregs[j].name="SPACE";
-       pregs[j].ptrn=ptrnSpace;
-       pregs[j].preg=&pregSpace;
-       j++;
-       pregs[j].name ="KEYWORD";
-       pregs[j].ptrn =ptrnKeywoAll;
-       pregs[j].preg =&pregKeywoAll;
-       j++;
-       pregs[j].name ="SPECIAL REGISTER";
-       pregs[j].ptrn =ptrnSpclReg;
-       pregs[j].preg =&pregSpclReg;
-       j++;
-       pregs[j].name ="FIGURATIVE CONST";
-       pregs[j].ptrn =ptrnFgrtvConst;
-       pregs[j].preg =&pregFgrtvConst;
-       j++;
-       pregs[j].name ="HEXLITERAL";
-       pregs[j].ptrn =ptrnHexL1;
-       pregs[j].preg =&pregHexL1;
-       j++;
-       pregs[j].name ="HEXLITERAL";
-       pregs[j].ptrn =ptrnHexL2;
-       pregs[j].preg =&pregHexL2;
-       j++;
-       pregs[j].name ="IDENTIFIER";
-       pregs[j].ptrn =ptrnIdent;
-       pregs[j].preg =&pregIdent;
-       j++;
-       pregs[j].name ="LITERAL";
-       pregs[j].ptrn =ptrnLiter1;
-       pregs[j].preg =&pregLiter1;
-       j++;
-       pregs[j].name ="LITERAL";
-       pregs[j].ptrn =ptrnLiter2;
-       pregs[j].preg =&pregLiter2;
-       j++;
-       pregs[j].name ="DECIMAL";
-       pregs[j].ptrn =ptrnDecim;
-       pregs[j].preg =&pregDecim;
-       j++;
-       pregs[j].name ="INTEGER";
-       pregs[j].ptrn =ptrnIntgr;
-       pregs[j].preg =&pregIntgr;
-       j++;
-       pregs[j].name="ENDLINE";
-       pregs[j].ptrn=ptrnEndLine;
-       pregs[j].preg=&pregEndLine;
-       j++;
- */    nb_regex_for_type = j;
+       nb_regex_for_type = j;
     }
 
   /* Additional Regex for token attributes   */
@@ -1113,7 +929,8 @@ token tokenizer(char* ln_8_72)
         strcat(rets_data,";;");
         strcat(rets_data,str);
         strcat(rets_data,";;");
-        char* temp="\0";
+        char temp[1000];
+        
         sprintf(temp, "%d", _ret.tkn_colnum);
         strcat(rets_data,temp);
         strcat(rets_data,";;");
@@ -1189,17 +1006,7 @@ token tokenizer(char* ln_8_72)
     printf("*----------------------------------------------*\n");
     */
 
-    debug_2("*----------------------------------------------*\n");
-    debug_2("*--------------   TOKENIZER    ----------------*\n");
-    debug_2("*----------------------------------------------*\n");
-    debug_2("*   Token Value : %s \n", _ret.tkn_val);
-    debug_2("*   Token Type  : %s \n", _ret.tkn_type);
-    debug_2("*   Token Line  : %d \n", _ret.tkn_lnnum);
-    debug_2("*   Token Coln  : %d \n", _ret.tkn_colnum);
-    debug_2("*   Token Length: %d \n", _ret.tkn_len);
-    debug_2("*   Token attrs : %d \n", _ret.tkn_attr_len);
-    debug_2("*----------------------------------------------*\n");
-
+    
     i =0;
     while (i < _ret.tkn_attr_len) {
        debug_2("*   Token Attr  : %s \n", _ret.tkn_attr[i]);

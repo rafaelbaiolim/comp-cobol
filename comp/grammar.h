@@ -183,7 +183,7 @@ id.refmodif:
 */
 
 #include "ast.h"
-#include "Lexer.h"
+#include "lexer.h"
 
 #define MAX_STR_ARR  20
 /* Declaration pour les fonctions et varaibles de permutations */

@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stddef.h>
-#define __XPG4 // itoa, strccase
+#define __XPG4 // sprintf, strccase
 #define __UU
 #define __OE_8
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 #if defined(_MSC_VER)
-#define itoa _itoa
+#define sprintf _sprintf
 #endif
 #include "debug.h"
 #include "ast.h"
@@ -1049,15 +1049,15 @@ affich_field (ast* tree,scr_line* screen){
 
    /* buffer 1 */
 
-   itoa(tree->node.field.lvl,buffer_1,10); /* lvl */
+   sprintf(tree->node.field.lvl,buffer_1,10); /* lvl */
    strcat(buffer_1," ");
 
-   itoa(tree->node.field.nb_parents,buffer,10); /* nb_parents */
+   sprintf(tree->node.field.nb_parents,buffer,10); /* nb_parents */
    strcat(buffer_1,buffer);
    strcat(buffer_1," ");
    strcpy(buffer,"");
 
- //itoa(tree->node.field.nb_bouchon,buffer,10); /* nb_bouchon */
+ //sprintf(tree->node.field.nb_bouchon,buffer,10); /* nb_bouchon */
  /*strcat(buffer_1,buffer);
    strcat(buffer_1," ");
    strcpy(buffer,"");
@@ -1067,12 +1067,12 @@ affich_field (ast* tree,scr_line* screen){
 
    if(tree->node.field.occurs       ) {
       strcat(buffer_1," OCCURS ");
-      itoa(tree->node.field.occurs->node.occurs.times,buffer,10);
+      sprintf(tree->node.field.occurs->node.occurs.times,buffer,10);
       strcat(buffer_1,buffer);                        /* times */
       strcpy(buffer,"");
       if(tree->node.field.occurs->node.occurs.to_times>0){
          strcat(buffer_1," TO ");
-         itoa(tree->node.field.occurs->node.occurs.to_times,buffer,10);
+         sprintf(tree->node.field.occurs->node.occurs.to_times,buffer,10);
          strcat(buffer_1,buffer);                     /* to_times */
          strcpy(buffer,"");
       }
@@ -1092,7 +1092,7 @@ affich_field (ast* tree,scr_line* screen){
       while(temp){
          switch (temp->node.pic_cmpnt.pic_cmpnt) {
             case PIC_REPEAT :
-                 itoa(temp->node.pic_cmpnt.pic_val.repeat,buffer,10);
+                 sprintf(temp->node.pic_cmpnt.pic_val.repeat,buffer,10);
                  strcat(buffer_1,"(");
                  strcat(buffer_1,buffer);
                  strcat(buffer_1,")");

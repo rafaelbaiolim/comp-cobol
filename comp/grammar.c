@@ -16,11 +16,12 @@
 #endif
 
 #include "debug.h"
-#include "Grammar.h"
-#include "Lexer.h"
+#include "grammar.h"
+#include "lexer.h"
 #include "ast.h"
 #include "rexxCom.h"
 #include "tokenize.h"
+#include "rexxCom.h"
 
 
 #define MAX_FP_ARR   12
@@ -76,7 +77,7 @@ int
 balayeur_pgm(){
 
     // commencer le parcours de pgm à partir du début
-    setCurrLnStart();
+    //setCurrLnStart();
     // get first token
     consume();
 
@@ -3185,7 +3186,7 @@ cond_val_cl()
 ast*
 copy_replacing(){
 
-    debug_9("Trying to match rule : %s \n",__FUNCTION__);
+    debug_3("Trying to match rule : %s \n",__FUNCTION__);
 
     ast* ret=NULL;
     ast* copy_ret=NULL;
