@@ -6,14 +6,11 @@
 #elif defined(_MSC_VER)
 #include <CRTDEFS.H> 
 #include <regex.h>
-//#include <pcre.h>
 #else
-// error : compiler not supported
 #endif
 
 #define MAX_ATTR 20
 
-/* token used by tokenizer and parser */
 typedef struct token{
     int   tkn_lnnum;
     int   tkn_colnum;
@@ -25,7 +22,6 @@ typedef struct token{
     int   tkn_attr_len;
 } token;
 
-/* struct for regex name pattern and pregex */
 typedef struct regex_npp{
     char*    name;
     char*    ptrn;
@@ -38,4 +34,3 @@ int compil_regexp(regex_npp _regex_npp);
 int erase_context();
 
 #endif
-/* TOKENIZE_H_INCLUDED */

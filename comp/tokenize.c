@@ -8,546 +8,334 @@
 #define NB_MATCH_MAX    10
 #define NB_REGEX_MAX    30
 
-  /*----------------------*/
-  /* Lexical tokenizing   */ 
-  /*----------------------*/
-  
-  /*---------------------------------------------------------------*/
-  /* REGEX Order                                                   */
-  /*---------------------------------------------------------------*/
-  /* 1  - Keyword                                                  */
-  /* 10 - Special registers                                        */
-  /* 101- Figurative constants                                     */
-  /* 11 - Hexa Literal1 & Hexa Literal2                            */
-  /* 2  - Identifier                                               */
-  /* 3  - Literal1 & Literal2                                      */
-  /* 31 - Decimal                                                  */
-  /* 32 - Integer                                                  */
-  /* 4  - Period                                                   */
-  /*      & plus minus equal expon divid multp Lbrack Rbrack colon */
-  /* 5  - EndLine                                                  */
-  /* 6  - Error                                                    */
-  /*---------------------------------------------------------------*/
-  /* Choose the longest match   
-  /*---------------------------------------------------------------*/
-  /* example : **   => exponent of multiply multiply               */              
-  /*           2,2  => decimal instead of integer                  */  
-  /*           a-b  => identifier a instead of a - b               */ 
-  /*           a+b  => a + b                                       */
-  /*---------------------------------------------------------------*/
-
-
-
 token tokenizer(char* ln_8_72)
 {
     token _ret = {0,0,0,"ERROR","ERROR"};
 
     static int reduction_len;
-    /****/ int regcomp_type_done=0;
-    /****/ int regcomp_attr_done=0;
+    int regcomp_type_done=0;
+    int regcomp_attr_done=0;
 
-    /* Regex for token type         */
-    /****/ regex_t    pregIdent;
-    /****/ regex_t    pregPicChars;
-    /****/ regex_t    pregLiterNum;
-    /****/ regex_t    pregLiterQuot;
-    /****/ regex_t    pregKeywoAll;
-    /****/ regex_t    pregSymbols;
-    /****/ regex_t    pregEndLine;
-    /****/ regex_t    pregSpace;
-
-    /* Regex for token attributes   */
-    /****/ regex_t    pregSpclReg;
-    /****/ regex_t    pregFgrtvConst;
-    /****/ regex_t    pregNumeric;
-    /****/ regex_t    pregQuoted;
-    /****/ regex_t    pregSQuoted;
-    /****/ regex_t    pregDQuoted;
-    /****/ regex_t    pregHex;
-    /****/ regex_t    pregAlphanum;
-    /****/ regex_t    pregIntgr;
-    /****/ regex_t    pregDecim;
-    /****/ regex_t    pregUnsigned;
-    /****/ regex_t    pregPositive;
-    /****/ regex_t    pregNegative;
-    /****/ regex_t    pregLvlnum;
-    /****/ regex_t    pregRelOp;
-    /****/ regex_t    pregAritOp;
+    regex_t    pregIdent;
+    regex_t    pregPicChars;
+    regex_t    pregLiterNum;
+    regex_t    pregLiterQuot;
+    regex_t    pregKeywoAll;
+    regex_t    pregSymbols;
+    regex_t    pregEndLine;
+    regex_t    pregSpace;
+    
+    regex_t    pregSpclReg;
+    regex_t    pregFgrtvConst;
+    regex_t    pregNumeric;
+    regex_t    pregQuoted;
+    regex_t    pregSQuoted;
+    regex_t    pregDQuoted;
+    regex_t    pregHex;
+    regex_t    pregAlphanum;
+    regex_t    pregIntgr;
+    regex_t    pregDecim;
+    regex_t    pregUnsigned;
+    regex_t    pregPositive;
+    regex_t    pregNegative;
+    regex_t    pregLvlnum;
+    regex_t    pregRelOp;
+    regex_t    pregAritOp;
 
 
-  /*    _____________________________________________________
-      _(                                                     )_
-     =_                I D E N T I F I E R                    _=
-       (_____________________________________________________)
-                                                                  */
+    char *ptrnIdent = 
+		"^( !,)*"
+		"(([0-9]+[-_]*)*[0-9]*[A-Za-z][A-Za-z0-9]*([-_]+[A-Za-z0-9]+)*)"
+        "(.*)";
 
-  /*----------------------------*/
-  /* Pattern pour indentifier   */
-  /*--------------------------------------------------------------*/
-  /* - Séparateur début: aucan ou plusieurs espaces ou virgules   */
-  /* - Corps : Un mot cobol compos{ de lettres et chiffres        */
-  /*   ainsi que tiret et undersoce qui doivent pas apparaitre    */
-  /*   au debut ou à a fin. doit contenir au moins une lettre     */
-  /* - S{parateur fin  : point, espace, virgule, fin, quote ou "  */
-  /*--------------------------------------------------------------*/
+   char *ptrnPicChars = 
+		"(^"
+        "([ABEGPSVXZabegpsvxz90\\+\\-\\*\\$\\/\\,]+))"
+        "([-+*$/,ABEGPSVXZabegpsvxz90]+))"
+        "(( !,!$)+!\\.!\\()(.*)";
 
-    /****/ char *ptrnIdent = "^( !,)*"                                \
-   "(([0-9]+[-_]*)*[0-9]*[A-Za-z][A-Za-z0-9]*([-_]+[A-Za-z0-9]+)*)"\
-                          "(.*)";
+   char   *ptrnLiterNum = 
+		"^( !,)*("
+        "([\\+\\-]?[0-9]*,[0-9]+)!"
+        "([\\+\\-]?[0-9]+)"
+        ")(.*)";
 
-  /*    _____________________________________________________
-      _(                                                     )_
-     =_            P I C T U R E  C H A R A C T E R           _=
-       (_____________________________________________________)
-                                                                  */
+    char *ptrnLiterQuot = 
+		"^( !,)*("
+        "('([^']!'')*')!"
+        "(\"([^\"]!\"\")*\")!"
+        "([Xx]['][0-9A-Fa-f]+['])!"
+        "([Xx][\"][0-9A-Fa-f]+[\"])"
+        ")(.*)";
 
-  /*-------------------------------------------*/
-  /* FTA1: ponctuation                         */
-  /* FTA2: CR et DB                            */
-  /*--------------------------------------------------------------*/
-  /* - picture-string =  currency? (picchar+ repeat?)+            */
-  /*   currency       =  $                                        */
-  /*   picchar        =  [ABEGPSVXZabegpsvxz90\+\-\*\$]           */
-  /*   repeat         =  "(" [0-9]+ ")"                           */
-  /*   mannque plus que CR et DB pour les pic string              */
-  /*--------------------------------------------------------------*/
+    char *ptrnKeywoAll = 
+		"^( !,)*("
+		"ACCEPT!ALPHABETIC-LOWER!APPLY!"
+		"ACCESS!ALPHABETIC-UPPER!ARE!"
+		"ADD!ALPHANUMERIC!AREA!"
+		"ALPHANUMERIC-EDITED!AREAS!ADDRESS!"
+		"ADVANCING!ALSO!ASCENDING!"
+		"AFTER!ALTER!ASSIGN!"
+		"ALTERNATE!AT!ALL!"
+		"ALPHABET!AND!AUTHOR!"
+		"ALPHABETIC!ANY!"
+		"BASIS!BINARY!BOTTOM!"
+		"BEFORE!BLANK!BY!"
+		"BEGINNING!BLOCK!"
+		"CALL!COLUMN!COMPUTATIONAL-5!"
+		"CANCEL!COM-REG!COMPUTE!"
+		"CBL!COMMA!CONFIGURATION!"
+		"CD!COMMON!CONTAINS!"
+		"CF!COMMUNICATION!CONTENT!"
+		"CH!COMP!CONTINUE!"
+		"CHARACTER!COMP-1!CONTROL!"
+		"CHARACTERS!COMP-2!CONTROLS!"                  
+		"CLASS!COMP-3!CONVERTING!"                     
+		"CLASS-ID!COMP-4!COPY!"
+		"CLOCK-UNITS!COMP-5!CORR!"                     
+		"CLOSE!COMPUTATIONAL!CORRESPONDING!"           
+		"COBOL!COMPUTATIONAL-1!COUNT!"                 
+		"CODE!COMPUTATIONAL-2!CURRENCY!"               
+		"CODE-SET!COMPUTATIONAL-3!"
+		"COLLATING!COMPUTATIONAL-4!"
+		"DATA!DEBUG-SUB-1!DESTINATION!"                
+		"DATE-COMPILED!DEBUG-SUB-2!DETAIL!"            
+		"DATE-WRITTEN!DEBUG-SUB-3!DISPLAY!"            
+		"DAY!DEBUGGING!DISPLAY-1!"
+		"DAY-OF-WEEK!DECIMAL-POINT!DIVIDE!"            
+		"DBCS!DECLARATIVES!DIVISION!"                  
+		"DE!DELETE!DOWN!"                              
+		"DEBUG-CONTENTS!DELIMITED!DUPLICATES!"         
+		"DELIMITER!DYNAMIC!DEBUG-ITEM!"
+		"DEPENDING!DEBUG-LINE!"                        
+		"DESCENDING!DEBUG-NAME!"
+		"EGCS!END-INVOKE!ENDING!"                      
+		"EGI!END-MULTIPLY!ENTER!"                      
+		"EJECT!END-OF-PAGE!ENTRY!"
+		"ELSE!END-PERFORM!ENVIRONMENT!"                
+		"EMI!END-READ!EOP!"                            
+		"ENABLE!END-RECEIVE!EQUAL!"                    
+		"END!END-RETURN!ERROR!"                        
+		"END-ADD!END-REWRITE!ESI!"
+		"END-CALL!END-SEARCH!EVALUATE!"                
+		"END-COMPUTE!END-START!EVERY!"                 
+		"END-DELETE!END-STRING!EXCEPTION!"             
+		"END-DIVIDE!END-SUBTRACT!EXIT!"                
+		"END-EVALUATE!END-UNSTRING!EXTEND!"
+		"END-IF!END-WRITE!EXTERNAL!"
+		"FALSE!FILLER!FOR!"                            
+		"FD!FINAL!FROM!"                               
+		"FILE!FIRST!FUNCTION!"                         
+		"FILE-CONTROL!FOOTING!"
+		"GENERATE!GO!GROUP!"                           
+		"GIVING!GOBACK!"                               
+		"GLOBAL!GREATER!"
+		"HEADING!HIGH-VALUE!HIGH-VALUES!"
+		"I-O!INDICATE!INSPECT!"
+		"I-O-CONTROL!INHERITS!INSTALLATION!"           
+		"ID!INITIAL!INTO!"                             
+		"IDENTIFICATION!INITIALIZE!INVALID!"           
+		"IF!INITIATE!INVOKE!"                          
+		"IN!INPUT!IS!"
+		"INDEX!INPUT-OUTPUT!"                          
+		"INDEXED!INSERT!"
+		"JUST!JUSTIFIED!"
+		"KANJI!KEY!"
+		"LABEL!LIMIT!LINES!"
+		"LAST!LIMITS!LINKAGE!"                         
+		"LEADING!LINAGE!LOCAL-STORAGE!"                
+		"LEFT!LINAGE-COUNTER!LOCK!"                    
+		"LINE!LENGTH!LOW-VALUE!"                       
+		"LESS!LINE-COUNTER!LOW-VALUES!"
+		"MEMORY!METHOD!MORE-LABELS!"                   
+		"MERGE!METHOD-ID!MOVE!"                        
+		"MESSAGE!MODE!MULTIPLE!"                       
+		"METACLASS!MODULES!MULTIPLY!"
+		"NATIVE!NO!NUMBER!"
+		"NATIVE_BINARY!NOT!NUMERIC!"                   
+		"NEGATIVE!NULL!NUMERIC-EDITED!"                
+		"NEXT!NULLS!"
+		"OBJECT!ON!OTHER!"                             
+		"OBJECT-COMPUTER!OPEN!OUTPUT!"
+		"OCCURS!OPTIONAL!OVERFLOW!"                    
+		"OF!OR!OVERRIDE!"                              
+		"OFF!ORDER!"                                   
+		"OMITTED!ORGANIZATION!"
+		"PACKED-DECIMAL!PIC!PROCEDURE-POINTER!"
+		"PADDING!PICTURE!PROCEDURES!"                  
+		"PAGE!PLUS!PROCEED!"                           
+		"PAGE-COUNTER!POINTER!PROCESSING!"             
+		"PASSWORD!POSITION!PROGRAM!"                   
+		"PERFORM!POSITIVE!PROGRAM-ID!"
+		"PF!PRINTING!PURGE!"                           
+		"PH!PROCEDURE!"
+		"QUEUE!QUOTE!QUOTES!"
+		"RANDOM!RELATIVE!RESERVE!"                     
+		"RD!RELEASE!RESET!"
+		"READ!RELOAD!RETURN!"                          
+		"READY!REMAINDER!RETURN-CODE!"                 
+		"RECEIVE!REMOVAL!RETURNING!"                   
+		"RECORD!RENAMES!REVERSED!"                     
+		"RECORDING!REPLACE!REWIND!"
+		"RECORDS!REPLACING!REWRITE!"                   
+		"RECURSIVE!REPORT!RF!"                         
+		"REDEFINES!REPORTING!RH!"                      
+		"REEL!REPORTS!RIGHT!"                          
+		"REFERENCE!REPOSITORY!ROUNDED!"
+		"REFERENCES!RERUN!RUN!"
+		"SAME!SIGN!STANDARD!"                          
+		"SD!SIZE!STANDARD-1!"                          
+		"SEARCH!SKIP1!STANDARD-2!"                     
+		"SECTION!SKIP2!START!"
+		"SECURITY!SKIP3!STATUS!"                       
+		"SEGMENT!SORT!STOP!"                           
+		"SEGMENT-LIMIT!SORT-CONTROL!STRING!"           
+		"SELECT!SORT-CORE-SIZE!SUB-QUEUE-1!"           
+		"SELF!SORT-FILE-SIZE!SUB-QUEUE-2!"
+		"SEND!SORT-MERGE!SUB-QUEUE-3!"                 
+		"SENTENCE!SORT-MESSAGE!SUBTRACT!"              
+		"SEPARATE!SORT-MODE-SIZE!SUM!"                 
+		"SEQUENCE!SUPER!SORT-RETURN!"                  
+		"SEQUENTIAL!SOURCE!SUPPRESS!"
+		"SERVICE!SOURCE-COMPUTER!SYMBOLIC!"            
+		"SET!SYNC!SPACE!"                              
+		"SHIFT-IN!SYNCHRONIZED!SPACES!"                
+		"SHIFT-OUT!SPECIAL-NAMES!"
+		"TABLE!TEXT!TITLE!"                            
+		"THAN!TO!TALLY!"
+		"TALLYING!THEN!TOP!"
+		"TAPE!THROUGH!TRACE!"
+		"TERMINAL!THRU!TRAILING!"
+		"TERMINATE!TIME!TRUE!"
+		"TEST!TIMES!TYPE!"
+		"UNIT!UP!USE!"
+		"UNSTRING!UPON!USING!"
+		"UNTIL!USAGE!"
+		"VALUE!VALUES!VARYING!"
+		"WHEN!WORDS!WRITE-ONLY!"
+		"WORKING-STORAGE!WHEN-COMPILED!"
+		"WITH!WRITE!"
+		"ZERO!ZEROES!ZEROS"
+		")(\\.! !,!$!'!\")(.*)";
 
-    /****/ char *ptrnPicChars = "(^"                              \
-                    "([ABEGPSVXZabegpsvxz90\\+\\-\\*\\$\\/\\,]+))" \
-                   "([-+*$/,ABEGPSVXZabegpsvxz90]+))" \
-                   "(( !,!$)+!\\.!\\()(.*)";
+    char *ptrnSymbols = 
+		"^( !,)*("                          \
+		"\\.!"             /*  .        */    \
+		"\\+!\\-!"         /*  +  -     */    \
+		"\\(!\\)!"         /*  (  )     */    \
+		"\\*\\*!\\*!\\/!"  /*  ** *  /  */    \
+		"<=!>=!"           /*  <= >=    */    \
+		"<!>!=!"           /*  <  >  =  */    \
+		":!\\$"            /*  :  $     */    \
+		")(.*)";
 
+    char *ptrnEndLine = 
+		"^(( !,)*)$";
 
-  /*    _____________________________________________________
-      _(                                                     )_
-     =_             L I T E R A L  N U M E R I C              _=
-       (_____________________________________________________)
-                                                                  */
+    char  *ptrnSpace = 
+		"(^( !,)+)";
 
-  /*--------------------------------------------------------------*/
-  /* - Séparateur début: Zero ou plusieurs : espaces ou virgules  */
-  /* - Corps : Commence par le separateur de string quote ou "    */
-  /*   puis zero ou une suite de caractères sauf separateur de    */
-  /*   string ou un double separateur de string et finit par le   */
-  /*   meme separateur de string                                  */
-  /* - S{parateur fin  : point, espace, virgule, fin, quote ou "  */
-  /*--------------------------------------------------------------*/
-    /****/ char   *ptrnLiterNum = "^( !,)*("                      \
-                           "([\\+\\-]?[0-9]*,[0-9]+)!"  /* -9,7 */\
-                           "([\\+\\-]?[0-9]+)"         /* +987 */\
-                      /*    ")([^']!$)(.*)"; */                   \
-                           ")(.*)";                               \
-  /*    _____________________________________________________
-      _(                                                     )_
-     =_             L I T E R A L  Q U O T E                  _=
-       (_____________________________________________________)
-                                                                  */
+    char *ptrnSpclReg  = 
+		"^( !,)*"                           \
+	    "(ADDRESS!"                         \
+	    "DEBUG-ITEM!DEBUG-LINE!DEBUG-NAME!" \
+	    "LENGTH!RETURN-CODE!SORT-RETURN!"   \
+	    "WHEN-COMPILED!TALLY)"              \
+	    "(\\.! !,!$!'!\")(.*)";
 
-    /****/ char *ptrnLiterQuot = "^( !,)*("                         \
-                           "('([^']!'')*')!"            /*  '.' */ \
-                           "(\"([^\"]!\"\")*\")!"       /*  "." */ \
-                           "([Xx]['][0-9A-Fa-f]+['])!"  /* x'.' */ \
-                           "([Xx][\"][0-9A-Fa-f]+[\"])" /* x"." */ \
-                      /*    ")([^']!$)(.*)"; */                    \
-                           ")(.*)";                                \
-  /*    _____________________________________________________
-      _(                                                     )_
-     =_                   K E Y W O R D                       _=
-       (_____________________________________________________)
-                                                                  */
+    char *ptrnFgrtvConst = 
+		"^( !,)*("                       \
+		"ALL!"                            \
+		"ZERO!ZEROS!ZEROES!"              \
+		"SPACE!SPACES!"                   \
+		"HIGH-VALUE!HIGH-VALUES!"         \
+		"LOW-VALUE!LOW-VALUES!"           \
+		"QUOTE!QUOTES"                    \
+		")(\\.! !,!$!'!\")(.*)";
 
-    /****/ char *ptrnKeywoAll = "^( !,)*("                          \
-    /*   A   */                                                    \
-    "ACCEPT!ALPHABETIC-LOWER!APPLY!"                               \
-    "ACCESS!ALPHABETIC-UPPER!ARE!"                                 \
-    "ADD!ALPHANUMERIC!AREA!"                                       \
-    "ALPHANUMERIC-EDITED!AREAS!ADDRESS!"                           \
-    "ADVANCING!ALSO!ASCENDING!"                                    \
-    "AFTER!ALTER!ASSIGN!"                                          \
-    "ALTERNATE!AT!ALL!"                                            \
-    "ALPHABET!AND!AUTHOR!"                                         \
-    "ALPHABETIC!ANY!"                                              \
-    /*   B   */                                                    \
-    "BASIS!BINARY!BOTTOM!"                                         \
-    "BEFORE!BLANK!BY!"                                             \
-    "BEGINNING!BLOCK!"                                             \
-    /*   C   */                                                    \
-    "CALL!COLUMN!COMPUTATIONAL-5!"                                 \
-    "CANCEL!COM-REG!COMPUTE!"                                      \
-    "CBL!COMMA!CONFIGURATION!"                                     \
-    "CD!COMMON!CONTAINS!"                                          \
-    "CF!COMMUNICATION!CONTENT!"                                    \
-    "CH!COMP!CONTINUE!"                                            \
-    "CHARACTER!COMP-1!CONTROL!"                                    \
-    "CHARACTERS!COMP-2!CONTROLS!"                                  \
-    "CLASS!COMP-3!CONVERTING!"                                     \
-    "CLASS-ID!COMP-4!COPY!"                                        \
-    "CLOCK-UNITS!COMP-5!CORR!"                                     \
-    "CLOSE!COMPUTATIONAL!CORRESPONDING!"                           \
-    "COBOL!COMPUTATIONAL-1!COUNT!"                                 \
-    "CODE!COMPUTATIONAL-2!CURRENCY!"                               \
-    "CODE-SET!COMPUTATIONAL-3!"                                    \
-    "COLLATING!COMPUTATIONAL-4!"                                   \
-    /*   D   */                                                    \
-    "DATA!DEBUG-SUB-1!DESTINATION!"                                \
-    "DATE-COMPILED!DEBUG-SUB-2!DETAIL!"                            \
-    "DATE-WRITTEN!DEBUG-SUB-3!DISPLAY!"                            \
-    "DAY!DEBUGGING!DISPLAY-1!"                                     \
-    "DAY-OF-WEEK!DECIMAL-POINT!DIVIDE!"                            \
-    "DBCS!DECLARATIVES!DIVISION!"                                  \
-    "DE!DELETE!DOWN!"                                              \
-    "DEBUG-CONTENTS!DELIMITED!DUPLICATES!"                         \
-    "DELIMITER!DYNAMIC!DEBUG-ITEM!"                                \
-    "DEPENDING!DEBUG-LINE!"                                        \
-    "DESCENDING!DEBUG-NAME!"                                       \
-    /*   E   */                                                    \
-    "EGCS!END-INVOKE!ENDING!"                                      \
-    "EGI!END-MULTIPLY!ENTER!"                                      \
-    "EJECT!END-OF-PAGE!ENTRY!"                                     \
-    "ELSE!END-PERFORM!ENVIRONMENT!"                                \
-    "EMI!END-READ!EOP!"                                            \
-    "ENABLE!END-RECEIVE!EQUAL!"                                    \
-    "END!END-RETURN!ERROR!"                                        \
-    "END-ADD!END-REWRITE!ESI!"                                     \
-    "END-CALL!END-SEARCH!EVALUATE!"                                \
-    "END-COMPUTE!END-START!EVERY!"                                 \
-    "END-DELETE!END-STRING!EXCEPTION!"                             \
-    "END-DIVIDE!END-SUBTRACT!EXIT!"                                \
-    "END-EVALUATE!END-UNSTRING!EXTEND!"                            \
-    "END-IF!END-WRITE!EXTERNAL!"                                   \
-    /*   F   */                                                    \
-    "FALSE!FILLER!FOR!"                                            \
-    "FD!FINAL!FROM!"                                               \
-    "FILE!FIRST!FUNCTION!"                                         \
-    "FILE-CONTROL!FOOTING!"                                        \
-    /*   G   */                                                    \
-                                                                   \
-    "GENERATE!GO!GROUP!"                                           \
-    "GIVING!GOBACK!"                                               \
-    "GLOBAL!GREATER!"                                              \
-    /*   H   */                                                    \
-                                                                   \
-    "HEADING!HIGH-VALUE!HIGH-VALUES!"                              \
-    /*   I   */                                                    \
-    "I-O!INDICATE!INSPECT!"                                        \
-    "I-O-CONTROL!INHERITS!INSTALLATION!"                           \
-    "ID!INITIAL!INTO!"                                             \
-    "IDENTIFICATION!INITIALIZE!INVALID!"                           \
-    "IF!INITIATE!INVOKE!"                                          \
-    "IN!INPUT!IS!"                                                 \
-    "INDEX!INPUT-OUTPUT!"                                          \
-    "INDEXED!INSERT!"                                              \
-    /*   J   */                                                    \
-    "JUST!JUSTIFIED!"                                              \
-    /*   K   */                                                    \
-    "KANJI!KEY!"                                                   \
-    /*   L   */                                                    \
-    "LABEL!LIMIT!LINES!"                                           \
-    "LAST!LIMITS!LINKAGE!"                                         \
-    "LEADING!LINAGE!LOCAL-STORAGE!"                                \
-    "LEFT!LINAGE-COUNTER!LOCK!"                                    \
-    "LINE!LENGTH!LOW-VALUE!"                                       \
-    "LESS!LINE-COUNTER!LOW-VALUES!"                                \
-    /*   M   */                                                    \
-    "MEMORY!METHOD!MORE-LABELS!"                                   \
-    "MERGE!METHOD-ID!MOVE!"                                        \
-    "MESSAGE!MODE!MULTIPLE!"                                       \
-    "METACLASS!MODULES!MULTIPLY!"                                  \
-    /*   N   */                                                    \
-    "NATIVE!NO!NUMBER!"                                            \
-    "NATIVE_BINARY!NOT!NUMERIC!"                                   \
-    "NEGATIVE!NULL!NUMERIC-EDITED!"                                \
-    "NEXT!NULLS!"                                                  \
-    /*   O   */                                                    \
-    "OBJECT!ON!OTHER!"                                             \
-    "OBJECT-COMPUTER!OPEN!OUTPUT!"                                 \
-    "OCCURS!OPTIONAL!OVERFLOW!"                                    \
-    "OF!OR!OVERRIDE!"                                              \
-    "OFF!ORDER!"                                                   \
-    "OMITTED!ORGANIZATION!"                                        \
-    /*   P   */                                                    \
-    "PACKED-DECIMAL!PIC!PROCEDURE-POINTER!"                        \
-    "PADDING!PICTURE!PROCEDURES!"                                  \
-    "PAGE!PLUS!PROCEED!"                                           \
-    "PAGE-COUNTER!POINTER!PROCESSING!"                             \
-    "PASSWORD!POSITION!PROGRAM!"                                   \
-    "PERFORM!POSITIVE!PROGRAM-ID!"                                 \
-    "PF!PRINTING!PURGE!"                                           \
-    "PH!PROCEDURE!"                                                \
-    /*   Q   */                                                    \
-    "QUEUE!QUOTE!QUOTES!"                                          \
-    /*   R   */                                                    \
-    "RANDOM!RELATIVE!RESERVE!"                                     \
-    "RD!RELEASE!RESET!"                                            \
-    "READ!RELOAD!RETURN!"                                          \
-    "READY!REMAINDER!RETURN-CODE!"                                 \
-    "RECEIVE!REMOVAL!RETURNING!"                                   \
-    "RECORD!RENAMES!REVERSED!"                                     \
-    "RECORDING!REPLACE!REWIND!"                                    \
-    "RECORDS!REPLACING!REWRITE!"                                   \
-    "RECURSIVE!REPORT!RF!"                                         \
-    "REDEFINES!REPORTING!RH!"                                      \
-    "REEL!REPORTS!RIGHT!"                                          \
-    "REFERENCE!REPOSITORY!ROUNDED!"                                \
-    "REFERENCES!RERUN!RUN!"                                        \
-    /*   S   */                                                    \
-    "SAME!SIGN!STANDARD!"                                          \
-    "SD!SIZE!STANDARD-1!"                                          \
-    "SEARCH!SKIP1!STANDARD-2!"                                     \
-    "SECTION!SKIP2!START!"                                         \
-    "SECURITY!SKIP3!STATUS!"                                       \
-    "SEGMENT!SORT!STOP!"                                           \
-    "SEGMENT-LIMIT!SORT-CONTROL!STRING!"                           \
-    "SELECT!SORT-CORE-SIZE!SUB-QUEUE-1!"                           \
-    "SELF!SORT-FILE-SIZE!SUB-QUEUE-2!"                             \
-    "SEND!SORT-MERGE!SUB-QUEUE-3!"                                 \
-    "SENTENCE!SORT-MESSAGE!SUBTRACT!"                              \
-    "SEPARATE!SORT-MODE-SIZE!SUM!"                                 \
-    "SEQUENCE!SUPER!SORT-RETURN!"                                  \
-    "SEQUENTIAL!SOURCE!SUPPRESS!"                                  \
-    "SERVICE!SOURCE-COMPUTER!SYMBOLIC!"                            \
-    "SET!SYNC!SPACE!"                                              \
-    "SHIFT-IN!SYNCHRONIZED!SPACES!"                                \
-    "SHIFT-OUT!SPECIAL-NAMES!"                                     \
-    /*   T   */                                                    \
-    "TABLE!TEXT!TITLE!"                                            \
-    "THAN!TO!TALLY!"                                               \
-    "TALLYING!THEN!TOP!"                                           \
-    "TAPE!THROUGH!TRACE!"                                          \
-    "TERMINAL!THRU!TRAILING!"                                      \
-    "TERMINATE!TIME!TRUE!"                                         \
-    "TEST!TIMES!TYPE!"                                             \
-    /*   U   */                                                    \
-    "UNIT!UP!USE!"                                                 \
-    "UNSTRING!UPON!USING!"                                         \
-    "UNTIL!USAGE!"                                                 \
-    /*   V   */                                                    \
-    "VALUE!VALUES!VARYING!"                                        \
-    /*   W   */                                                    \
-    "WHEN!WORDS!WRITE-ONLY!"                                       \
-    "WORKING-STORAGE!WHEN-COMPILED!"                               \
-    "WITH!WRITE!"                                                  \
-    /*   X   */                                                    \
-    /*   Y   */                                                    \
-    /*   Z   */                                                    \
-    "ZERO!ZEROES!ZEROS"                                            \
-    /*  END  */                                                    \
-    ")(\\.! !,!$!'!\")(.*)";
+    char *ptrnNumeric = 
+		"^("                                  \
+		"ZERO!ZEROS!ZEROES!"                  \
+		"([\\+\\-]?[0-9]+)!"       /* Intgr */\
+		"([\\+\\-]?[0-9]*,[0-9]+)" /* Decim */\
+		")$";
 
-  /*    _____________________________________________________
-      _(                                                     )_
-     =_                   S Y M B O L S                       _=
-       (_____________________________________________________)
-                                                                  */
+    char *ptrnQuoted = 
+		"^("                                    \
+        "('([^']!'')*')!"            /*  '.' */ \
+        "(\"([^\"]!\"\")*\")!"       /*  "." */ \
+        "([Xx]['][0-9A-Fa-f]+['])!"  /* x'.' */ \
+        "([Xx][\"][0-9A-Fa-f]+[\"])" /* x"." */ \
+        ")$";
 
-    /****/ char *ptrnSymbols = "^( !,)*("                          \
-                            "\\.!"             /*  .        */    \
-                            "\\+!\\-!"         /*  +  -     */    \
-                            "\\(!\\)!"         /*  (  )     */    \
-                            "\\*\\*!\\*!\\/!"  /*  ** *  /  */    \
-                            "<=!>=!"           /*  <= >=    */    \
-                            "<!>!=!"           /*  <  >  =  */    \
-                            ":!\\$"            /*  :  $     */    \
-                            ")(.*)";
+    char *ptrnSQuoted = 
+		"^("                                  \
+        "('([^']!'')*')!"            /*  '.' */ \
+        "([Xx]['][0-9A-Fa-f]+['])"  /* x'.' */ \
+        ")$";
 
-  /*    _____________________________________________________
-      _(                                                     )_
-     =_                   E N D  L I N E                     _=
-       (_____________________________________________________)
-                                                                  */
+    char *ptrnDQuoted = 
+		"^("                                   \
+		"(\"([^\"]!\"\")*\")!"       /*  "." */ \
+		"([Xx][\"][0-9A-Fa-f]+[\"])" /* x"." */ \
+		")$";
 
-    /****/ char *ptrnEndLine = "^(( !,)*)$";
+    char *ptrnHex = 
+		"^("                                   \
+		"([Xx]['][0-9A-Fa-f]+['])!"  /* x'.' */ \
+		"([Xx][\"][0-9A-Fa-f]+[\"])" /* x"." */ \
+		")$";
 
-  /*    _____________________________________________________
-      _(                                                     )_
-     =_                     S P A C E                        _=
-       (_____________________________________________________)
-                                                                  */
+    char *ptrnAlphanum = 
+		"^("                                  \
+		"('([^']!'')*')!"            /*  '.' */ \
+		"(\"([^\"]!\"\")*\")"       /*  "." */ \
+		")$";
 
-    /****/ char  *ptrnSpace = "(^( !,)+)";
+    char *ptrnIntgr = 
+		"^("                                 \
+        "([\\+\\-]?[0-9]+)"          /*  987 */ \
+        ")$";
 
+    char *ptrnDecim = 
+		"^("                                \
+        "([\\+\\-]?[0-9]*,[0-9]+)"             \
+        ")$";
 
-  /*    ______________________________
-      _(                              )_
-     =_    SPECIAL REGISTER KEYWORD    _=
-       (______________________________)
-                                                                  */
+    char *ptrnUnsigned = 
+		"^("                               \
+        "([0-9]+)!"                /* 987 */  \
+        "([0-9]*,[0-9]+)"          /* 9,7 */  \
+        ")$";
 
-    /****/ char *ptrnSpclReg  = "^( !,)*"                           \
-                               "(ADDRESS!"                         \
-                               "DEBUG-ITEM!DEBUG-LINE!DEBUG-NAME!" \
-                               "LENGTH!RETURN-CODE!SORT-RETURN!"   \
-                               "WHEN-COMPILED!TALLY)"              \
-                               "(\\.! !,!$!'!\")(.*)";
+    char *ptrnPositive = 
+		"^("                               \
+        "(\\+[0-9]+)!"             /* +987 */ \
+        "(\\+[0-9]*,[0-9]+)"       /* +9,7 */ \
+        ")$";
 
-  /*    ______________________________
-      _(                              )_
-     =_  FIGURATIVE CONSTANTS KEYWORD  _=
-       (______________________________)
-                                                                  */
+    char *ptrnNegative = 
+		"^("                                 \
+        "(\\-[0-9]+)!"             /* -987 */ \
+        "(\\-[0-9]*,[0-9]+)"       /* -9,7 */ \
+        ")$";
 
-    /****/ char *ptrnFgrtvConst = "^( !,)*("                       \
-                                 "ALL!"                            \
-                                 "ZERO!ZEROS!ZEROES!"              \
-                                 "SPACE!SPACES!"                   \
-                                 "HIGH-VALUE!HIGH-VALUES!"         \
-                                 "LOW-VALUE!LOW-VALUES!"           \
-                                 "QUOTE!QUOTES"                    \
-                                 ")(\\.! !,!$!'!\")(.*)";
+    char *ptrnLvlNum = 
+		"^("                                   \
+        "([0]?[1-9]![1-4][0-9]!66!77!88)"     \
+        ")$";
 
-  /*    _____________________________
-      _(                             )_
-     =_        NUMERIC LITERAL        _=
-       (_____________________________)
-                                                                  */
+    char *ptrnRelOp  = 
+		"^("                                   \
+        "(<!>!<=!>=!=)"                       \
+        ")$";
 
-    /****/ char *ptrnNumeric = "^("                                  \
-                              "ZERO!ZEROS!ZEROES!"                  \
-                              "([\\+\\-]?[0-9]+)!"       /* Intgr */\
-                              "([\\+\\-]?[0-9]*,[0-9]+)" /* Decim */\
-                              ")$";
-
-  /*    _____________________________
-      _(                             )_
-     =_        QUOTED LITERAL         _=
-       (_____________________________)
-                                                                  */
-
-    /****/ char *ptrnQuoted = "^("                                    \
-                             "('([^']!'')*')!"            /*  '.' */ \
-                             "(\"([^\"]!\"\")*\")!"       /*  "." */ \
-                             "([Xx]['][0-9A-Fa-f]+['])!"  /* x'.' */ \
-                             "([Xx][\"][0-9A-Fa-f]+[\"])" /* x"." */ \
-                              ")$";
-
-  /*    _____________________________
-      _(                             )_
-     =_    SINGLE QUOTED LITERAL      _=
-       (_____________________________)
-                                                                  */
-
-    /****/ char *ptrnSQuoted = "^("                                  \
-                             "('([^']!'')*')!"            /*  '.' */ \
-                             "([Xx]['][0-9A-Fa-f]+['])"  /* x'.' */ \
-                              ")$";
-
-  /*    _____________________________
-      _(                             )_
-     =_    DOUBLE QUOTED LITERAL      _=
-       (_____________________________)
-                                                                  */
-
-    /****/ char *ptrnDQuoted = "^("                                   \
-                             "(\"([^\"]!\"\")*\")!"       /*  "." */ \
-                             "([Xx][\"][0-9A-Fa-f]+[\"])" /* x"." */ \
-                              ")$";
-
-  /*    _____________________________
-      _(                             )_
-     =_      HEXADECIMAL LITERAL      _=
-       (_____________________________)
-                                                                  */
-
-    /****/ char *ptrnHex     = "^("                                   \
-                             "([Xx]['][0-9A-Fa-f]+['])!"  /* x'.' */ \
-                             "([Xx][\"][0-9A-Fa-f]+[\"])" /* x"." */ \
-                              ")$";
-
-  /*    _____________________________
-      _(                             )_
-     =_      ALPHANUMERIC LITERAL     _=
-       (_____________________________)
-                                                                  */
-
-    /****/ char *ptrnAlphanum = "^("                                  \
-                             "('([^']!'')*')!"            /*  '.' */ \
-                             "(\"([^\"]!\"\")*\")"       /*  "." */ \
-                              ")$";
-
-  /*    _____________________________
-      _(                             )_
-     =_        INTEGER LITERAL        _=
-       (_____________________________)
-                                                                  */
-
-    /****/ char *ptrnIntgr    = "^("                                 \
-                             "([\\+\\-]?[0-9]+)"          /*  987 */ \
-                              ")$";
-
-  /*    _____________________________
-      _(                             )_
-     =_        DECIMAL LITERAL        _=
-       (_____________________________)
-                                                                  */
-
-    /****/ char *ptrnDecim    = "^("                                \
-                             "([\\+\\-]?[0-9]*,[0-9]+)"             \
-                              ")$";
-
-  /*    _____________________________
-      _(                             )_
-     =_      UNSIGNED NUMERIC         _=
-       (_____________________________)
-                                                                  */
-
-    /****/ char *ptrnUnsigned = "^("                               \
-                             "([0-9]+)!"                /* 987 */  \
-                             "([0-9]*,[0-9]+)"          /* 9,7 */  \
-                              ")$";
-
-  /*    _____________________________
-      _(                             )_
-     =_      POSITIVE NUMERIC         _=
-       (_____________________________)
-                                                                  */
-
-    /****/ char *ptrnPositive = "^("                               \
-                             "(\\+[0-9]+)!"             /* +987 */ \
-                             "(\\+[0-9]*,[0-9]+)"       /* +9,7 */ \
-                              ")$";
-
-  /*    _____________________________
-      _(                             )_
-     =_      NEGATIVE NUMERIC         _=
-       (_____________________________)
-                                                                  */
-
-    /****/ char *ptrnNegative = "^("                                 \
-                             "(\\-[0-9]+)!"             /* -987 */ \
-                             "(\\-[0-9]*,[0-9]+)"       /* -9,7 */ \
-                              ")$";
-
-  /*    _____________________________
-      _(                             )_
-     =_         LEVEL NUMBER          _=
-       (_____________________________)
-                                                                  */
-
-    /****/ char *ptrnLvlNum = "^("                                   \
-                             "([0]?[1-9]![1-4][0-9]!66!77!88)"     \
-                              ")$";
-
-  /*    _____________________________
-      _(                             )_
-     =_      RELATIONAL OPERATOR      _=
-       (_____________________________)
-                                                                  */
-
-    /****/ char *ptrnRelOp  = "^("                                   \
-                             "(<!>!<=!>=!=)"                       \
-                              ")$";
-
-  /*    _____________________________
-      _(                             )_
-     =_      ARITHMITIC OPERATOR      _=
-       (_____________________________)
-                                                                  */
-
-    /****/ char *ptrnAritOp  = "^("                                  \
-                              "\\+!\\-!"         /*  +  -     */   \
-                              "\\(!\\)!"         /*  (  )     */   \
-                              "\\*\\*!\\*!\\/"  /*  ** *  /  */   \
-                              ")$";
+    char *ptrnAritOp = 
+		"^("                                  \
+        "\\+!\\-!"         /*  +  -     */   \
+        "\\(!\\)!"         /*  (  )     */   \
+        "\\*\\*!\\*!\\/"  /*  ** *  /  */   \
+        ")$";
 
     int         rc=0;
     int         i=0;
@@ -567,32 +355,9 @@ token tokenizer(char* ln_8_72)
     }
     strcpy(args,ln_8_72);
 
-  /*---------------------------------------------------------------*/
-  /*---------------------------------------------------------------*/
-  /*---------------------------------------------------------------*/
-
-  /*---------------------------------------------------------------*/
-  /* Ordre des REGEX                                               */
-  /*---------------------------------------------------------------*/
-  /* 1  - Keyword                                                  */
-  /* 10 - Special registers                                        */
-  /* 101- Figurative constants                                     */
-  /* 11 - Hexa Literal1 & Hexa Literal2                            */
-  /* 2  - Identifier                                               */
-  /* 3  - Literal1 & Literal2                                      */
-  /* 31 - Decimal                                                  */
-  /* 32 - Integer                                                  */
-  /* 4  - Period                                                   */
-  /*      & plus minus equal expon divid multp Lbrack Rbrack colon */
-  /* 5  - EndLine                                                  */
-  /* 6  - Error                                                    */
-  /*---------------------------------------------------------------*/
-    /* Pointer Array for pregs order for type*/
-    /****/ regex_npp   pregs [NB_REGEX_MAX];
+    regex_npp   pregs [NB_REGEX_MAX];
 
     int nb_regex_for_type;
-
-    /* Default pregs order (empty context) */
 
     pregs[j].name ="KEYWORD";
     pregs[j].ptrn =ptrnKeywoAll;
@@ -622,14 +387,6 @@ token tokenizer(char* ln_8_72)
   
     nb_regex_for_type = j;
 
-  /*---------------------------------------------------------------*/
-  /*-------------- ! Context Sensitive Lexer ! --------------------*/
-  /*---------------------------------------------------------------*/
-  /* If clause data_pic_chars => add PICCHARS as the first regex   */
-  /*---------------------------------------------------------------*/
-  /*                          => next is the pattern for space     */
-  /*---------------------------------------------------------------*/
-
     if((strcmp(_context.clause,"data_pic_chars"))==0){
 
        j = 0;
@@ -642,7 +399,7 @@ token tokenizer(char* ln_8_72)
        pregs[j].ptrn =ptrnSpace;
        pregs[j].preg =&pregSpace;
        j++;
-       pregs[j].name ="SYMBOL"; /* ?? symbol ici */
+       pregs[j].name ="SYMBOL";
        pregs[j].ptrn =ptrnSymbols;
        pregs[j].preg =&pregSymbols;
        j++;
@@ -669,11 +426,10 @@ token tokenizer(char* ln_8_72)
        nb_regex_for_type = j;
     }
 
-  /* Additional Regex for token attributes   */
-  /****/ regex_npp   pregs_attr [NB_REGEX_MAX];
+	regex_npp   pregs_attr [NB_REGEX_MAX];
 
-  int nb_regex_for_attr;
-  j =0;
+	int nb_regex_for_attr;
+	j =0;
 
   pregs_attr[j].name ="SPECIAL REGISTER";
   pregs_attr[j].ptrn =ptrnSpclReg;
@@ -742,156 +498,39 @@ token tokenizer(char* ln_8_72)
 
   nb_regex_for_attr = j;
 
-  /*
-  regex_npp   reg_lvlnum;
-  regex_npp   reg_lvl66;
-  regex_npp   reg_lvl88;
-  regex_npp   reg_uintgr;
+   i=0;
+   while ((i < nb_regex_for_type) && (compil_regexp(pregs[i])))
+   {
+	//debug_3("Compilation regex (%s) reussie \n",pregs[i].name);
+	  i++;
+   }
 
-  reg_lvlnum.name="LVLNUM";
-  reg_lvlnum.ptrn=ptrnLvlnum;
-  reg_lvlnum.preg=&pregLvlnum;
+   /* Sortie pr{mature : erreur compilation */
+   if (i < nb_regex_for_type) exit(EXIT_FAILURE);
+   else regcomp_type_done = 1;
 
-  reg_lvl66.name="LVL66";
-  reg_lvl66.ptrn=ptrnLvl66;
-  reg_lvl66.preg=&pregLvl66;
-
-  reg_lvl88.name="LVL88";
-  reg_lvl88.ptrn=ptrnLvl88;
-  reg_lvl88.preg=&pregLvl88;
-
-  reg_uintgr.name="UINTEGER";
-  reg_uintgr.ptrn=ptrnUintgr;
-  reg_uintgr.preg=&pregUintgr;
-
-  if(!(compil_regexp(reg_lvlnum))) return _ret;
-  if(!(compil_regexp(reg_lvl66))) return _ret;
-  if(!(compil_regexp(reg_lvl88))) return _ret;
-  if(!(compil_regexp(reg_uintgr))) return _ret;
-  */
-
-  /*---------------------------------------------------------------*/
-  /*-------------- ! Compilation des Regex  ! ---------------------*/
-  /*---------------------------------------------------------------*/
-
-     /* _______________________________
-      _(                               )_
-     =_  COMPILE REGEX FOR TOKEN TYPE   _=
-       (_______________________________)*/
-
-
- /* debug_2("regcomp_type_done (%d) \n",regcomp_type_done);
-
-    if(!(regcomp_type_done)) {
- */
-       i=0;
-       while ((i < nb_regex_for_type) && (compil_regexp(pregs[i])))
-       {
-        //debug_3("Compilation regex (%s) reussie \n",pregs[i].name);
-          i++;
-       }
-
-       /* Sortie pr{mature : erreur compilation */
-       if (i < nb_regex_for_type) exit(EXIT_FAILURE);
-       else regcomp_type_done = 1;
- /* }
- */
-     /* ____________________________________
-      _(                                    )_
-     =_  COMPILE REGEX FOR TOKEN ATTRIBUTES  _=
-       (____________________________________)*/
-
-
- /* debug_2("regcomp_attr_done (%d) \n",regcomp_attr_done);
-
-    if(!(regcomp_attr_done)) {
- */
        i=0;
        while ((i < nb_regex_for_attr) && (compil_regexp(pregs_attr[i])))
        {
-        //debug_3("Compilation regex (%s) reussie \n",
-        //                                 pregs_attr[i].name);
           i++;
        }
 
-
-       /* Sortie pr{mature : erreur compilation */
        if (i < nb_regex_for_attr) exit(EXIT_FAILURE);
        else regcomp_attr_done = 1;
-  /*
-    }
-  */
-     /* _____________________________
-      _(                             )_
-     =_  MATCH REGEX FOR TOKEN TYPE   _=
-       (_____________________________)*/
 
     i =0;
-    while ((i < nb_regex_for_type) &&
-          /* patch horrible dans condition while */
-         (((rc =regexec(pregs[i].preg, args, nmatch, pmatch, 0)) != 0)
-          /* continuer la recherche si on trouve picchar et   */
-          /* son dernier caractere est le point et le prochain*/
-          /* caractere nest pas le point piouf .. */
-        /*
-        ||(((rc =regexec(pregs[i].preg, args, nmatch, pmatch, 0)) == 0)
-        && (strcmp(pregs[i].name,"PICCHARS")==0)    picchar
-        && (*(args+pmatch[2].rm_eo-1)=='.')    dernier char est '.'
-        && ((pmatch[2].rm_eo)<=strlen(args))    pas fin de args
-        && (*(args+(pmatch[2].rm_eo))!='.'))
-        */
-          )) {
-        /*
-        if(strcmp(pregs[i].name,"PICCHARS")==0) {
-
-        debug_2("this line should not be printed, otherwise it's bug");
-        debug_2("rc (%d)\n",rc);
-        debug_2("\npregs.name            (%s)\n",pregs[i].name);
-        debug_2("args+pmatch2.rm_eo-1  (%d)\n",args+pmatch[2].rm_eo-1);
-        debug_2("*args+pmatch2.rm_eo-1 (%c)\n",
-                                          *(args+pmatch[2].rm_eo-1));
-        debug_2("strlen(args)          (%d)\n",strlen(args));
-        debug_2("pmatch2.rm_eo         (%d)\n",(pmatch[2].rm_eo));
-        debug_2("*(args+(pmatch2.rm_eo)(%c)\n",
-                                          *(args+(pmatch[2].rm_eo)));
-        */
-        /* Display matched sub-expression */
-        /* affich_subexpr(pmatch,args); */
-     /* } */
-    // affich_fail_match(rc,args,pregs[i].name,pregs[i].preg);
+    while ( (i < nb_regex_for_type) &&
+			(((rc =regexec(pregs[i].preg, args, nmatch, pmatch, 0)) != 0)) ) {
        i++;
     }
 
-    /* match found */
     if (i < nb_regex_for_type) {
-
         if(strcmp(pregs[i].name,"PICCHARS")==0) {
-        /*
-        debug_2("pregs.name            (%s)\n",pregs[i].name);
-        debug_2("args+pmatch2.rm_eo-1  (%d)\n",args+pmatch[2].rm_eo-1);
-        debug_2("*args+pmatch2.rm_eo-1 (%c)\n",
-                                          *(args+pmatch[2].rm_eo-1));
-        debug_2("strlen(args)          (%d)\n",strlen(args));
-        debug_2("pmatch2.rm_eo         (%d)\n",(pmatch[2].rm_eo));
-        debug_2("*(args+(pmatch2.rm_eo)(%c)\n",
-                                          *(args+(pmatch[2].rm_eo)));
-        */
-        /* Display matched sub-expression */
-        /* affich_subexpr(pmatch,args);
-        */
-        /* Patch pour annulation context une fois picchar lu */
-        erase_context();
-       }
-
-
-        /* extraire token vers var tmp : str */
+			erase_context();
+		}
+		
         sprintf(str,"%.*s",pmatch[2].rm_eo - pmatch[2].rm_so,
                   args+pmatch[2].rm_so);
-
-        /* reduire args */
-        /*
-        sprintf(args,"%.*s",pmatch[3].rm_eo - pmatch[3].rm_so,
-                  args+pmatch[3].rm_so); */
 
         reduction_len  = 65 - strlen(args);
 
@@ -901,12 +540,6 @@ token tokenizer(char* ln_8_72)
         _ret.tkn_colnum = pmatch[2].rm_so + 1 + reduction_len;
         _ret.tkn_len    = pmatch[2].rm_eo - pmatch[2].rm_so;
 
-      /*printf("tokenizer     :strlen(args) (%d) reduction_len (%d)" \
-        " tkn_colnum (%d) pmatch[2].rm_so (%d) tkn_len (%d) \n",
-        strlen(args),reduction_len,_ret.tkn_colnum,pmatch[2].rm_so,
-        _ret.tkn_len);
-      */
-        /* concat str avec rets */
         strcat(rets_data,pregs[i].name);
         strcat(rets_data,";;");
         strcat(rets_data,str);
@@ -920,27 +553,8 @@ token tokenizer(char* ln_8_72)
         _ret.tkn_type   = pregs[i].name;
         _ret.tkn_val    = str;
 
-
-        /*
-        if ((rc =regexec(reg_lvlnum.preg,str,nmatch,pmatch,0)) == 0){
-            _ret.tkn_attr[0] = "LVLNUM";
-            printf ("LVLNUM found \n");
-        }
-        if ((rc =regexec(reg_lvl66.preg,str,nmatch,pmatch,0)) == 0){
-            _ret.tkn_attr[0]= "LVL66";
-            printf ("LVL66  found \n");
-        }
-        if ((rc =regexec(reg_lvl88.preg,str,nmatch,pmatch,0)) == 0){
-            _ret.tkn_attr[0]= "LVL88";
-            printf ("LVL88  found \n");
-        }
-        if ((rc =regexec(reg_uintgr.preg,str,nmatch,pmatch,0)) == 0){
-            _ret.tkn_attr[1]= "UINTEGER";
-            printf ("UINTEGER  found \n");
-        } */
     }
 
-    /* no match found */
     else {
 
        strcpy(rets_data,"ERROR;;");
@@ -950,44 +564,25 @@ token tokenizer(char* ln_8_72)
        printf("ERROR, args :%s",args);
     }
 
-     /* ____________________________________
-      _(                                    )_
-     =_  COMPILE REGEX FOR TOKEN ATTRIBUTES  _=
-       (____________________________________)*/
-
     i =0;
     j =0;
     _ret.tkn_attr_len =0;
-    while ((i < nb_regex_for_attr) &&
-           (rc=strcmp(_ret.tkn_val,"ERROR"))!=0)
-    {
-       if((rc =regexec(pregs_attr[i].preg,str,nmatch,pmatch,0)) == 0)
-       {
-          /* Display matched sub-expression */
-        /*affich_subexpr(pmatch,str); */
-          _ret.tkn_attr[j]=pregs_attr[i].name;
-          j++;
-       }
-       else
-       {
-        /*affich_fail_match(rc,args,pregs[i].name,pregs[i].preg);*/
-       }
+    while ( (i < nb_regex_for_attr) &&
+            ((rc=strcmp(_ret.tkn_val,"ERROR")) !=0) ) {
+	   if ((rc =regexec(pregs_attr[i].preg,str,nmatch,pmatch,0)) == 0) {
+		  _ret.tkn_attr[j]=pregs_attr[i].name;
+		  j++;
+	   }
+	   else
+	   {
+		/*show__fail_match(rc,args,pregs[i].name,pregs[i].preg);*/
+	   }
 
-       i++;
-    }
+	   i++;
+	}
     _ret.tkn_attr_len=j;
 
     rets_len = strlen(rets_data);
-    /*
-    printf("\n");
-    printf("*----------------------------------------------*\n");
-    printf("*--------------  END LEXERCOB  ----------------*\n");
-    printf("*----------------------------------------------*\n");
-    printf("*   Rets length : %d \n", rets_len);
-    printf("*   Rets data   :'%s'\n", rets_data);
-    printf("*----------------------------------------------*\n");
-    */
-
     
     i =0;
     while (i < _ret.tkn_attr_len) {
@@ -1003,49 +598,14 @@ token tokenizer(char* ln_8_72)
     for(i=0;i<nb_regex_for_attr;i++)
         regfree(pregs_attr[i].preg);
 
-    /*
-    regfree(&pregKeywo);
-    regfree(&pregIdent);
-    regfree(&pregPerio);
-    regfree(&pregLiter1);
-    regfree(&pregLiter2);
-    regfree(&pregHexL1);
-    regfree(&pregHexL2);
-    regfree(&pregKeywoAll);
-    regfree(&pregLBrack);
-    regfree(&pregRBrack);
-    regfree(&pregPlus);
-    regfree(&pregMinus);
-    regfree(&pregMultp);
-    regfree(&pregDivid);
-    regfree(&pregExpon);
-    regfree(&pregEqual);
-    regfree(&pregColon);
-    regfree(&pregIntgr);
-    regfree(&pregDecim);
-
-    printf("tokenizer()   : ");
-    printf("Token Value <%s> Token Type   <%s> \n",
-            _ret.tkn_val,_ret.tkn_type);
-    */
-    /*
-    printf("tokenizer()   : ");
-    printf("args        : <%s>\n",args);
-    printf("len args    : <%d>\n",strlen(args));
-    */
     strcpy(ln_8_72,args);
 
-    /*
-    printf("tokenizer()   : ");
-    printf("ln_8_72     : <%s>\n",ln_8_72);
-    printf("len ln_8_72 : <%d>\n",strlen(ln_8_72));
-    */
     return _ret;
 
 }
 
 
-int affich_subexpr(regmatch_t pmatch[],char args[]){
+int show__subexpr(regmatch_t pmatch[],char args[]){
 
    int i =0;
 
@@ -1067,7 +627,7 @@ int affich_subexpr(regmatch_t pmatch[],char args[]){
    return 1;
 }
 
-int affich_fail_match(int rc,char args[],char* ptrn,regex_t* preg){
+int show__fail_match(int rc,char args[],char* ptrn,regex_t* preg){
 
    char buffer[100];
 
@@ -1084,8 +644,6 @@ int compil_regexp(regex_npp _regex_npp){
     int  rc =0;
     char buffer[100];
 
-    /* Compiler la REGEXP pour ptrn dans preg */
-
     if ((rc = regcomp(_regex_npp.preg, _regex_npp.ptrn,
          REG_ICASE|REG_EXTENDED)) != 0)
     {
@@ -1094,7 +652,6 @@ int compil_regexp(regex_npp _regex_npp){
               rc, buffer);
        return 0;
     }
-    /* printf("regcomp for (%s) succesful \n",_regex_npp.name);*/
 
     return 1;
 }

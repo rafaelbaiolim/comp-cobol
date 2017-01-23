@@ -128,7 +128,6 @@ struct ast* append_list      (struct ast* list, struct ast* toadd);
 void        append_child     (struct ast* dad , struct ast* child);
 
 int    chain_length          (struct ast* list);
-void   maj_nb_bouchon        (struct ast* list);
 
 
 typedef struct ast {
@@ -374,26 +373,26 @@ typedef struct ast {
 } ast;
 
 
- affich_declaration(ast*, scr_line*);
- affich_statement(ast*, scr_line*);
- affich_move_stm(ast*, scr_line*);
- affich_display_stm(ast*, scr_line*);
- affich_initialize_stm(ast*, scr_line*);
- affich_operand(ast*, scr_line*);
- affich_literal(ast*, scr_line*);
- affich_identifier(ast*, scr_line*);
- affich_ident_name(ast*, scr_line*);
- affich_ident_name_qualif(ast*, scr_line*);
- affich_ident_qualif(ast*, scr_line*);
- affich_ident_subscript(ast*, scr_line*);
- affich_ident_refmod(ast*, scr_line*);
- affich_special_reg(ast*, scr_line*);
- affich_arith_exp(ast*, scr_line*);
- affich_binary_op(ast*, scr_line*);
- affich_unary_op(ast*, scr_line*);
+ show_declaration(ast*, scr_line*);
+ show_statement(ast*, scr_line*);
+ show_move_stm(ast*, scr_line*);
+ show__display_stm(ast*, scr_line*);
+ show__initialize_stm(ast*, scr_line*);
+ show__operand(ast*, scr_line*);
+ show__literal(ast*, scr_line*);
+ show__identifier(ast*, scr_line*);
+ show__ident_name(ast*, scr_line*);
+ show__ident_name_qualif(ast*, scr_line*);
+ show__ident_qualif(ast*, scr_line*);
+ show__ident_subscript(ast*, scr_line*);
+ show__ident_refmod(ast*, scr_line*);
+ show__special_reg(ast*, scr_line*);
+ show__arith_exp(ast*, scr_line*);
+ show__binary_op(ast*, scr_line*);
+ show__unary_op(ast*, scr_line*);
 
 
- void affich_node(ast*, scr_line*);
+ void show_node(ast*, scr_line*);
  void free_node(ast* tree);
 
  free_sentence(ast* tree);

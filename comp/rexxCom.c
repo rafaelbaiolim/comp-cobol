@@ -18,20 +18,16 @@ char options[NB_OPTIONS][DS_NAME_LEN];
 int main_ret;
 _editLine result[NB_RESULTS];
 
-// int        curr_ln_num;
 _srcLine* src_list;
 _srcLine* curr_src_line;
 
-/* bug connu : rawcode depasse le code reel par 14 car à la fin */
 int getArgsRexx()
 {
-
     curr_src_line = getSource("teste.cbl");
 }
 
 void setCurrLnStart()
 {
-
     curr_src_line = src_list;
 }
 
@@ -78,7 +74,6 @@ int break_str_space(char* line, char words[][DS_NAME_LEN], int maxWords)
  */
 _srcLine* getSource(char* fileName)
 {
-
     FILE* fp;
     _srcLine* p;
     _srcLine* l;
@@ -117,7 +112,6 @@ _srcLine* getSource(char* fileName)
 
 _srcLine* getCurrSrcLine(_srcLine* srcList, int cursl, int cursc)
 {
-
     _srcLine* l;
     int i;
 

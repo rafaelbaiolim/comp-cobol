@@ -1,1 +1,0 @@
-./Debug/up_lexer.c.o ./Debug/up_tokenize.c.o ./Debug/up_check.c.o ./Debug/up_helper.c.o ./Debug/up_rexxCom.c.o ./Debug/up_generate.c.o ./Debug/up_ast.c.o ./Debug/up_grammar.c.o ./Debug/up_main.c.o

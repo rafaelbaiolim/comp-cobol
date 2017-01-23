@@ -5,13 +5,9 @@
 #include "lexer.h"
 
 #define MAX_STR_ARR  20
-/* Declaration pour les fonctions et varaibles de permutations */
-
-/* Typedef pour function to Pointer */
 typedef ast* (*AstFunc)();
 //typedef ast* (*AstFunc)(void);
 
-/* Typedef pour array of string with length */
 typedef struct str_arr{
    int    len;
    char*  arr [MAX_STR_ARR];
@@ -35,9 +31,6 @@ fp_t_nod* alim_clauses();
 int tkn_in_array (str_arr);
 fp_t_nod* delete_clauses(fp_t_nod*,fp_t_nod*);
 
-/*  End declaration pour permutation */
-
-/* Grammar functions return */
 typedef struct ast_ret {
           struct ast*  _ast;             /* AST     */
           int          _ret;             /* return  */
@@ -65,9 +58,6 @@ ast* file_section();
 ast* working_storage_section();
 ast* linkage_section();
 
-/*--------------  Grammar recursive procedures ------------*/
-
-
 ast* sntce();
 ast* stmnt();
 
@@ -80,11 +70,8 @@ int intlz_rplc_oprnds();
 int intlz_rplc_oprnd();
 int chartype();
 
-/* int move_1(); */
-/* int move_2(); */
 ast* move_oprnd();
 ast* corspnd();
-
 
 int dsply_upon();
 int dsply_noadv();
@@ -96,7 +83,6 @@ ast* ids_litrs();
 ast* id_litr();
 ast* ids();
 
-
 ast* litr();
 ast* id();
 ast* id_name_qualif();
@@ -104,8 +90,6 @@ ast* id_name();
 ast* id_qualif();
 ast* id_subscript();
 ast* id_refmodif();
-
-/*--15*07*2014-----------  Additional production  -------------------*/
 
 ast* figurative_constants();
 ast* special_register();
@@ -118,9 +102,6 @@ ast* times_div();
 ast* power();
 ast* basis();
 
-/*-----------------------  Identifier body --------------------------*/
-
-
 ast* id_qualif_oprnd();
 ast* subscripts();
 ast* subscript();
@@ -130,15 +111,8 @@ ast* refmodif_length();
 ast* arith_expr();
 ast* arith_expr2();
 
-
-/*------------------------  Arithmetic expression -------------------*/
-
-
-
 ast* arith_expr_oprnd();
 ast* arith_expr_oprtn();
-
-/*--------------------- Data Declaration    -------------------------*/
 
 ast* data_fields();
 ast* data_field();
@@ -157,18 +131,15 @@ ast* cond_name();
 
 ast* data_external_cl();
 ast* data_blankzero_cl();
-/*--------------------- Auxiliary functions -------------------------*/
 
-int      match(char*);
 char*    get_token_val();
 char*    get_token_type();
 int      expect(char*);
-int      error(char*);
 context  set_context(char* );
 int      restore_context(context);
 char*    get_token_val();
 char*    get_token_type();
-int      balayeur_pgm();
+int      varrer_pgm();
 int	 equal_val(char* expected);
 int	 equal_type(char* expected);
 int	 match_type(char* expected);
@@ -181,4 +152,3 @@ int	 match_attr(char* expected);
 int	 equal_attr(char* expected);
 
 #endif
-/* GRAMMAR_H_INCLUDED */

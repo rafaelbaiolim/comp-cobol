@@ -1,0 +1,3 @@
+gcc -o teste main.c ast.c ast.h debug.h grammar.c grammar.h helper.c helper.h lexer.c lexer.h rexxCom.c rexxCom.h tokenize.c tokenize.h
+
+./teste

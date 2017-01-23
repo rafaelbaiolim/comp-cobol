@@ -15,14 +15,12 @@ int i = 0;
 _srcLine* src_list;
 _srcLine* curr_src_line;
 
-/* curr_ln_obj stores the actual string to tokenize */
 static ln_obj curr_ln_obj;
 
 extern token lookahead;
 
 token getNextToken()
 {
-
     static token _ret;
 
     debug_3("%s", curr_src_line);
@@ -40,12 +38,12 @@ token getNextToken()
     debug_2("*----------------------------------------------*\n");
     debug_2("*--------------   TOKENIZER    ----------------*\n");
     debug_2("*----------------------------------------------*\n");
-    debug_2("*   Token Value : %s \n", _ret.tkn_val);
-    debug_2("*   Token Type  : %s \n", _ret.tkn_type);
-    debug_2("*   Token Line  : %d \n", _ret.tkn_lnnum);
-    debug_2("*   Token Coln  : %d \n", _ret.tkn_colnum);
-    debug_2("*   Token Length: %d \n", _ret.tkn_len);
-    debug_2("*   Token attrs : %d \n", _ret.tkn_attr_len);
+    debug_2("*   Token Valor : %s \n", _ret.tkn_val);
+    debug_2("*   Token Tipo  : %s \n", _ret.tkn_type);
+    debug_2("*   Token Linha : %d \n", _ret.tkn_lnnum);
+    debug_2("*   Token Coluna: %d \n", _ret.tkn_colnum);
+    debug_2("*   Token Tam.  : %d \n", _ret.tkn_len);
+    debug_2("*   Token Attrs : %d \n", _ret.tkn_attr_len);
     debug_2("*----------------------------------------------*\n");
 
     return _ret;
@@ -102,14 +100,9 @@ ln_obj preprocessor(ln_str_num lnstrnum)
         _ret.ln_num = lnstrnum.ln_num;
     }
 
-    /* '*' = 92 */
-    /* '-' = 96 */
-    /* '/' = 97 */
-
     if(((*(_ret.ln_7)) == 92) || ((*(_ret.ln_7)) == 97)) {
         debug_2(" Comment line (%d)\n", _ret.ln_num);
         debug_2(" _ret.ln_8_72 <%s>\n", _ret.ln_8_72);
-        /*  sprintf(_ret.ln_8_72,"%-65s"); */
         *(_ret.ln_8_72) = '\0';
         debug_2(" _ret.ln_8_72 <%s>\n", _ret.ln_8_72);
         debug_2("  len ln_8_72 (%d)\n", strlen(_ret.ln_8_72));

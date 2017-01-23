@@ -3,15 +3,6 @@
 
 #define SHIFT_LEN 3
 
-/*
- * Helper file for displaying the abstract syntax tree. 
- * if the level =0  the screen is empty
- * first level is 1
- * each level shifts 5x
- * between two box 2y
- */
-
-
 typedef struct scr_line {
 
   char   value[1024];
@@ -43,14 +34,7 @@ draw_border(int length, int shift);
 scr_line*
 draw_value (int length, int shift,char* value);
 
-scr_line*
-draw_blank ();
-
 int
 print_boxes(scr_line* scr);
 
-char*
-h_realloc(char* temp,int size);
-
 #endif
-/* HELPER_H_INCLUDED */

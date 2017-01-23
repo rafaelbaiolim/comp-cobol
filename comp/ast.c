@@ -63,7 +63,7 @@ char* tagValues[] = {
 
 static int lvl=-1;
 
-/*---   SENTENCE   ---*/
+
 ast*
 make_sentence    (int nb_statement, struct ast* list_statement){
 
@@ -98,7 +98,7 @@ make_ast (){
 
 }
 
-affich_sentence(ast* tree,scr_line* screen){
+show_sentence(ast* tree,scr_line* screen){
 
 
    ast* temp = NULL;
@@ -109,7 +109,7 @@ affich_sentence(ast* tree,scr_line* screen){
    temp=tree->node.sentence.list_statement;
 
    while(temp != NULL){
-      affich_statement(temp,screen);
+      show_statement(temp,screen);
       temp = temp->next;
    }
 
@@ -117,7 +117,7 @@ affich_sentence(ast* tree,scr_line* screen){
 
 }
 
-affich_statement(ast* tree,scr_line* screen){
+show_statement(ast* tree,scr_line* screen){
 
    debug_2("Switch for statement ... \n");
    ast* temp = NULL;
@@ -129,21 +129,19 @@ affich_statement(ast* tree,scr_line* screen){
 
    if      (tree->tag == MOVE_STM)
 
-           affich_move_stm(tree,screen);
+           show_move_stm(tree,screen);
 
    else if (tree->tag == DISPLAY_STM)
 
-           affich_display_stm(tree,screen);
+           show__display_stm(tree,screen);
 
    else if (tree->tag == INITIALIZE_STM)
 
-           affich_initialize_stm(tree,screen);
+           show__initialize_stm(tree,screen);
 
    else {
 
-        /* printf("Unknown Tag for statement (%s) \n",
-                                tagValues[tree->tag]);
-        */ printf("Unknown Tag for statement (%d) \n",
+           printf("Unknown Tag for statement (%d) \n",
                                           tree->tag );
            exit(EXIT_FAILURE);
    }
@@ -151,7 +149,6 @@ affich_statement(ast* tree,scr_line* screen){
    lvl--;
 }
 
-/*---   MOVE   ---*/
 ast*
 make_move        (int bool_corresp, int nb_operand_r,
                   struct ast* operand_g, struct ast* list_operand_r){
@@ -174,7 +171,7 @@ make_move        (int bool_corresp, int nb_operand_r,
 
 }
 
-affich_move_stm(ast* tree,scr_line* screen){
+show_move_stm(ast* tree,scr_line* screen){
 
    ast* temp = NULL;
 
@@ -189,7 +186,7 @@ affich_move_stm(ast* tree,scr_line* screen){
    strcpy(value,"");
 
    lvl++;
-   affich_node(tree->node.move_stm.operand_g,screen);
+   show_node(tree->node.move_stm.operand_g,screen);
    lvl--;
 
    draw_box(screen,"TO","",lvl);
@@ -201,13 +198,13 @@ affich_move_stm(ast* tree,scr_line* screen){
    while(temp != NULL){
       debug_3("Printing inner nodes (%s) \n",tagValues[temp->tag]);
       debug_2("Printing inner nodes (%d) \n",          temp->tag );
-      affich_operand(temp,screen);
+      show__operand(temp,screen);
       temp=temp->next;
    }
    lvl--;
 
 }
-/*---   DISPLAY   ---*/
+
 ast*
 make_display (int bool_upon, int bool_no_adv, char* upon_operand,
                    int nb_operand, struct ast* list_operand){
@@ -236,7 +233,7 @@ make_display (int bool_upon, int bool_no_adv, char* upon_operand,
 
 }
 
-affich_display_stm(ast* tree,scr_line* screen){
+show__display_stm(ast* tree,scr_line* screen){
 
    ast* temp = NULL;
 
@@ -247,7 +244,7 @@ affich_display_stm(ast* tree,scr_line* screen){
    while(temp != NULL){
       debug_3("Printing inner nodes (%s) \n",tagValues[temp->tag]);
       debug_2("Printing inner nodes (%d) \n",          temp->tag );
-      affich_operand(temp,screen);
+      show__operand(temp,screen);
       temp=temp->next;
    }
    lvl--;
@@ -276,7 +273,7 @@ make_initialize  (int bool_repl, int nb_operand,
 
 }
 
-affich_initialize_stm(ast* tree,scr_line* screen){
+show__initialize_stm(ast* tree,scr_line* screen){
 
    ast* temp = NULL;
 
@@ -297,14 +294,12 @@ affich_initialize_stm(ast* tree,scr_line* screen){
    while(temp != NULL){
       debug_3("Printing inner nodes (%s) \n",tagValues[temp->tag]);
       debug_2("Printing inner nodes (%d) \n",          temp->tag );
-      affich_operand(temp,screen);
+      show__operand(temp,screen);
       temp=temp->next;
    }
    lvl--;
 }
 
-
-/*---   OPERAND   ---*/
 ast*
 make_operand (int bool_literal, int bool_identifier,
                   struct ast* operand){
@@ -323,23 +318,22 @@ make_operand (int bool_literal, int bool_identifier,
 
 }
 
-affich_operand(ast* tree,scr_line* screen){
+show__operand(ast* tree,scr_line* screen){
 
    ast* temp = NULL;
 
    if      (tree->tag == LITERAL)
 
-           affich_literal(tree,screen);
+           show__literal(tree,screen);
 
    else if (tree->tag == IDENTIFIER)
 
-           affich_identifier(tree,screen);
+           show__identifier(tree,screen);
 
    else exit(EXIT_FAILURE);
 
 }
 
-/*---   LITERAL   ---*/
 ast*
 make_literal     (char* value,
                   int bool_all, int bool_numeric,
@@ -384,10 +378,8 @@ make_literal     (char* value,
 
 }
 
-affich_literal(ast* tree,scr_line* screen){
+show__literal(ast* tree,scr_line* screen){
 
-   /* comportement bizzare des strings */
-   /* str continue toujours a garder sa valeur tout au long du pgm */
    char* value=malloc(125);
    strcpy(value,"ALL ");
 
@@ -435,7 +427,7 @@ make_identifier  (int bool_length, int bool_address,
 
 }
 
-affich_identifier(ast* tree,scr_line* screen){
+show__identifier(ast* tree,scr_line* screen){
 
    char* value_1=malloc(125);
    char* value_2=malloc(125);
@@ -464,19 +456,19 @@ affich_identifier(ast* tree,scr_line* screen){
 
    debug_2("Identifier name  ? (%d)\n",tree->node.identifier.name);
    if(tree->node.identifier.name != NULL)
-      affich_ident_name(tree->node.identifier.name,screen);
+      show__ident_name(tree->node.identifier.name,screen);
 
    debug_2("Identifier qualif? (%d)\n",tree->node.identifier.qualif);
    if(tree->node.identifier.qualif != NULL)
-      affich_ident_qualif(tree->node.identifier.qualif,screen);
+      show__ident_qualif(tree->node.identifier.qualif,screen);
 
    debug_2("Identifier subscr  (%d)\n",tree->node.identifier.subscript);;
    if(tree->node.identifier.subscript != NULL)
-      affich_ident_subscript(tree->node.identifier.subscript,screen);
+      show__ident_subscript(tree->node.identifier.subscript,screen);
 
    debug_2("Identifier refmod ? (%d)\n",tree->node.identifier.refmod);
    if(tree->node.identifier.refmod != NULL)
-      affich_ident_refmod(tree->node.identifier.refmod,screen);
+      show__ident_refmod(tree->node.identifier.refmod,screen);
    lvl--;
 }
 
@@ -502,7 +494,7 @@ make_ident_name_qualif
 
 }
 
-affich_ident_name_qualif(ast* tree,scr_line* screen){
+show__ident_name_qualif(ast* tree,scr_line* screen){
 
 
 }
@@ -526,7 +518,7 @@ make_ident_name  (int length, char* value){
 
 }
 
-affich_ident_name(ast* tree,scr_line* screen){
+show__ident_name(ast* tree,scr_line* screen){
 
    draw_box(screen,tree->node.ident_name.ast_name,
                    tree->node.ident_name.value,lvl);
@@ -550,7 +542,7 @@ make_ident_qualif(struct ast* list_qualif){
 
 }
 
-affich_ident_qualif(ast* tree,scr_line* screen){
+show__ident_qualif(ast* tree,scr_line* screen){
 
    ast* temp = NULL;
 
@@ -590,7 +582,7 @@ make_ident_subscript
 
 }
 
-affich_ident_subscript(ast* tree,scr_line* screen){
+show__ident_subscript(ast* tree,scr_line* screen){
 
    ast* temp = NULL;
 
@@ -602,7 +594,7 @@ affich_ident_subscript(ast* tree,scr_line* screen){
    while(temp != NULL){
       debug_3("Printing (%s) (%d)     \n",tagValues[temp->tag],temp);
       debug_2("Printing (%d) (%d)     \n",          temp->tag ,temp);
-      affich_arith_exp(temp,screen);
+      show__arith_exp(temp,screen);
       /*
       draw_box(screen,tree->node.ident_subscript.ast_name,
                       temp->node.arith_exp.value,lvl);
@@ -634,7 +626,7 @@ make_ident_refmod(struct ast* charleft, struct ast* length){
 
 }
 
-affich_ident_refmod(ast* tree,scr_line* screen){
+show__ident_refmod(ast* tree,scr_line* screen){
 
 
    draw_box(screen,tree->node.ident_refmod.ast_name,"",lvl);
@@ -642,11 +634,11 @@ affich_ident_refmod(ast* tree,scr_line* screen){
    lvl++;
 
    draw_box(screen,"OFFSET","",lvl);
-   affich_arith_exp(tree->node.ident_refmod.charleft,screen);
+   show__arith_exp(tree->node.ident_refmod.charleft,screen);
 
    if(tree->node.ident_refmod.length){
      draw_box(screen,"LENGTH","",lvl);
-     affich_arith_exp(tree->node.ident_refmod.length,screen);
+     show__arith_exp(tree->node.ident_refmod.length,screen);
    }
    lvl--;
 
@@ -672,7 +664,7 @@ make_arith_exp   (char* value, char* oper, char* sign,
 
 }
 
-affich_arith_exp(ast* tree,scr_line* screen){
+show__arith_exp(ast* tree,scr_line* screen){
 
    /*draw_box(screen,tree->node.arith_exp.ast_name,"",lvl);*/
 
@@ -680,13 +672,13 @@ affich_arith_exp(ast* tree,scr_line* screen){
       draw_box(screen,"SIGN",tree->node.arith_exp.sign,lvl);
 
    if (tree->node.arith_exp.left)
-      affich_node(tree->node.arith_exp.left,screen);
+      show_node(tree->node.arith_exp.left,screen);
 
    if (strlen(tree->node.arith_exp.oper)>0)
       draw_box(screen,"OPERATION",tree->node.arith_exp.oper,lvl);
 
    if (tree->node.arith_exp.right)
-      affich_node(tree->node.arith_exp.right,screen);
+      show_node(tree->node.arith_exp.right,screen);
 
 }
 
@@ -1029,7 +1021,7 @@ make_field_sync(int bool_right, int bool_left){
   return e;
 }
 
-affich_field (ast* tree,scr_line* screen){
+show__field (ast* tree,scr_line* screen){
 
    assert(tree->tag==FIELD);
    assert((!tree->next)||tree->next->tag==FIELD);
@@ -1215,42 +1207,42 @@ affich_field (ast* tree,scr_line* screen){
 
    if(temp) {
   /*  lvl++; */
-      affich_field(temp,screen);
+      show__field(temp,screen);
   /*  lvl--; */
    }
 
    temp =tree->next;
 
    if(temp) {
-      debug_2("afficher next field : addr (%d) \n",temp);
+      debug_2("show_er next field : addr (%d) \n",temp);
 
-      affich_field(temp,screen);
+      show__field(temp,screen);
    }
 
 }
 
-affich_binary_op(ast* tree,scr_line* screen){
+show__binary_op(ast* tree,scr_line* screen){
 
 
 }
 
-affich_data_div(ast* tree,scr_line* screen){
+show_data_div(ast* tree,scr_line* screen){
 
-   debug_1("afficher file_sect\n");
-   affich_node(tree->node.data_div.file_sect, screen);
-   debug_1("afficher ws_sect\n");
-   affich_node(tree->node.data_div.ws_sect, screen);
-   debug_1("afficher link_sect\n");
-   affich_node(tree->node.data_div.link_sect, screen);
-
-}
-
-affich_declaration(ast* tree,scr_line* screen){
-
+   debug_1("show_er file_sect\n");
+   show_node(tree->node.data_div.file_sect, screen);
+   debug_1("show_er ws_sect\n");
+   show_node(tree->node.data_div.ws_sect, screen);
+   debug_1("show_er link_sect\n");
+   show_node(tree->node.data_div.link_sect, screen);
 
 }
 
-affich_special_reg(ast* tree,scr_line* screen){
+show_declaration(ast* tree,scr_line* screen){
+
+
+}
+
+show__special_reg(ast* tree,scr_line* screen){
 
 
 }
@@ -1346,118 +1338,113 @@ append_child(struct ast* dad, struct ast* child){
 
 /*              Affichage des AST                       */
 void
-affich_node (ast* tree,scr_line* screen){
+show_node (ast* tree,scr_line* screen){
 
    if (tree==NULL) return;
 
-   debug_1("  afficher node (%d) \n",tree->tag);
+   debug_1("  exibindo no (%d) \n",tree->tag);
 
    if      (tree->tag == SENTENCE)
 
-           affich_sentence(tree,screen);
+           show_sentence(tree,screen);
 
    else if (tree->tag == DECLARATION)
 
-           affich_declaration(tree,screen);
+           show_declaration(tree,screen);
 
    else if (tree->tag == DATA_DIV   )
 
-           affich_data_div(tree,screen);
+           show_data_div(tree,screen);
 
    else if (tree->tag == STATEMENT)
 
-           affich_statement(tree,screen);
+           show_statement(tree,screen);
 
    else if (tree->tag == MOVE_STM)
 
-           affich_move_stm(tree,screen);
+           show_move_stm(tree,screen);
 
    else if (tree->tag == DISPLAY_STM)
 
-           affich_display_stm(tree,screen);
+           show__display_stm(tree,screen);
 
    else if (tree->tag == INITIALIZE_STM)
 
-           affich_initialize_stm(tree,screen);
+           show__initialize_stm(tree,screen);
 
    else if (tree->tag == OPERAND)
 
-           affich_operand(tree,screen);
+           show__operand(tree,screen);
 
    else if (tree->tag == LITERAL)
 
-           affich_literal(tree,screen);
+           show__literal(tree,screen);
 
    else if (tree->tag == IDENTIFIER)
 
-           affich_identifier(tree,screen);
+           show__identifier(tree,screen);
 
    else if (tree->tag == IDENT_NAME)
 
-           affich_ident_name(tree,screen);
+           show__ident_name(tree,screen);
 
    else if (tree->tag == IDENT_NAME_QUALIF)
 
-           affich_ident_name_qualif(tree,screen);
+           show__ident_name_qualif(tree,screen);
 
    else if (tree->tag == IDENT_QUALIF)
 
-           affich_ident_qualif(tree,screen);
+           show__ident_qualif(tree,screen);
 
    else if (tree->tag == IDENT_SUBSCRIPT)
 
-           affich_ident_subscript(tree,screen);
+           show__ident_subscript(tree,screen);
 
    else if (tree->tag == IDENT_REFMOD)
 
-           affich_ident_refmod(tree,screen);
+           show__ident_refmod(tree,screen);
 
    else if (tree->tag == SPECIAL_REG)
 
-           affich_special_reg(tree,screen);
+           show__special_reg(tree,screen);
 
    else if (tree->tag == ARITH_EXP)
 
-           affich_arith_exp(tree,screen);
+           show__arith_exp(tree,screen);
 
    else if (tree->tag == BINARY_OP)
 
-           affich_binary_op(tree,screen);
+           show__binary_op(tree,screen);
 
    else if (tree->tag == FIELD)
 
-           affich_field(tree,screen);
+           show__field(tree,screen);
 
    else {
-          /* printf("node to print not allowed (%s) \n",
-                     tagValues[tree->tag]);
-          */ printf("node to print not allowed (%d) (%d)\n",
-                               tree,tree->tag );
-             exit(EXIT_FAILURE);
+		   printf("no nao permitido (%d) (%d)\n",
+						   tree,tree->tag );
+	       exit(EXIT_FAILURE);
    }
 
 }
 
-/*              Free AST               */
-void
-free_node   (ast* tree){
 
-   /* si ast n'est pas cr{{e */
+void
+free_node (ast* tree) {
+
    if (tree==NULL) return;
 
-   /* Cas sp{cial ast : free children first */
    if ((tree->tag == FIELD) && (tree->node.field.children)) {
-      debug_2("Child to free found (%d)\n",tree->node.field.children);
+      debug_2("No filho encontrado (%d)\n",tree->node.field.children);
       free_node(tree->node.field.children);
    }
 
    if(tree->next){
-      debug_2("Next to free found (%d)(%d)\n",
-                                           tree->next->tag,tree->next);
+      debug_2("No livre encontrado (%d)(%d)\n",tree->next->tag,tree->next);
       free_node(tree->next);
    }
 
-   debug_3("Real free start switch (%d)(%d)\n",tree->tag,tree);
+   debug_3("Arvore switch (%d)(%d)\n",tree->tag,tree);
 
    switch (tree->tag) {
 
@@ -1494,11 +1481,11 @@ free_node   (ast* tree){
       default:
         /* printf("Unknown Tag (%d)(%s) \n", tree->tag,
            tagValues[tree->tag]); */
-           printf("Unknown Tag (%d)(%d) \n", tree->tag,tree);
-           exit(EXIT_FAILURE);
+	  printf("Tag desconhecida (%d)(%d) \n", tree->tag,tree);
+	  exit(EXIT_FAILURE);
    }
 
-   debug_3("Real free end for (%d)(%d)\n",tree->tag,tree);
+   debug_3("Arvore fim (%d)(%d)\n",tree->tag,tree);
 }
 
 
@@ -1711,31 +1698,6 @@ free_renames(ast* tree){
 free_binary_op(ast* tree){ /* to_del */
 
    free(tree);
-
-}
-
-/* Maj de nombre de bouchon pour tous les childs */
-/* en entr{e : premier child */
-void
-maj_nb_bouchon(ast* tree){
-
-   assert(tree->tag==FIELD);
-
-   tree->node.field.nb_bouchon++;
-
-   ast* p =NULL;
-
-   for(p=tree->node.field.children;p;p=p->node.field.children){
-
-      maj_nb_bouchon(p);
-
-   }
-
-   for(p=tree->next;p;p=p->next){
-
-      maj_nb_bouchon(p);
-
-   }
 
 }
 

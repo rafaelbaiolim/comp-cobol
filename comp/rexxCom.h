@@ -1,7 +1,7 @@
 #ifndef REXXCOM_H_INCLUDED
 #define REXXCOM_H_INCLUDED
 
-#define DS_NAME_LEN 45    // include char for \0
+#define DS_NAME_LEN 45 
 #define NB_INC_PDS  20
 #define NB_OPTIONS  20
 #define NB_RESULTS  500
@@ -39,17 +39,14 @@ typedef struct _srcLine {
   struct _srcLine *next;
 } _srcLine;
 
-extern int        argc;                /* arguments count */
-extern int        cursl;               /* cursor line */
-extern int        cursc;               /* cursor colon */
-extern char       src_file[DS_NAME_LEN];
-extern char       inc_pds[NB_INC_PDS][DS_NAME_LEN];
-extern char       options[NB_OPTIONS][DS_NAME_LEN];
-extern int        main_ret;            /* return data */
-extern _editLine  result[NB_RESULTS];  /* return data */
-
-//extern int     curr_ln_num;         /* current line being parsed  */
-extern _srcLine   *src_list;           /* source                     */
-extern _srcLine   *curr_src_line;      /* source                     */
+extern int argc;
+extern int cursl;
+extern int cursc;
+extern char src_file[DS_NAME_LEN];
+extern char inc_pds[NB_INC_PDS][DS_NAME_LEN];
+extern char options[NB_OPTIONS][DS_NAME_LEN];
+extern int main_ret;
+extern _editLine result[NB_RESULTS];
+extern _srcLine *src_list;
+extern _srcLine *curr_src_line;
 #endif
-/* REXXCOM_H_INCLUDED */

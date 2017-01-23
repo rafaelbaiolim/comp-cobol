@@ -1,5 +1,5 @@
 #include <stdio.h>
-#define __XPG4 // itoa, strccase
+#define __XPG4
 #define __UU
 #define __OE_8
 #include <stdlib.h>
@@ -12,7 +12,7 @@
 #include <string.h>
 #define strcasecmp _stricmp
 #else
-// error : compiler not supported
+
 #endif
 
 #include "debug.h"
@@ -30,8 +30,6 @@ context _context = { "", "", "", "", "", "" };
 context save;
 ast* build_literal(int);
 token lookahead = { 0, 0, 0, "", "" };
-
-/****************************/
 
 ast* get_sentence()
 {
@@ -68,19 +66,12 @@ ast* get_data()
     return ret;
 }
 
-/*---------------------------------  Sweeper for DATA      ---------*/
-
-int balayeur_pgm()
+int varrer_pgm()
 {
-
-    // commencer le parcours de pgm à partir du début
-    // setCurrLnStart();
-    // get first token
     consume();
 
-    debug_3("token value (%s) token type (%s) \n", get_token_val(), get_token_type());
+    debug_3("valor token (%s) / tipo token (%s) \n", get_token_val(), get_token_type());
 
-    // lire jusqua trouver DATA
     while((!equal_val("DATA")) && (!equal_type("PROGRAM$")) && (!equal_type("ERROR"))) {
         consume();
 
@@ -89,22 +80,6 @@ int balayeur_pgm()
 
             return 1;
         }
-
-//        ast* sntce = get_sentence();
-//
-//        if(sntce) {
-//
-//            scr_line* screen;
-//            screen = init_screen();
-//            debug_1("ast Chain_length = (%d) \n", chain_length(sntce));
-//            debug_2("Drawing  (%s) \n", tagValues[sntce->tag]);
-//            assert(sntce->tag == SENTENCE);
-//            affich_node(sntce, screen);
-//            debug_2("Printing (%s) \n", tagValues[sntce->tag]);
-//            print_boxes(screen);
-//            free_node(sntce);
-//        } else
-//            free_node(sntce);
     }
 
     if(equal_val("DATA")) {
@@ -114,16 +89,14 @@ int balayeur_pgm()
     }
 }
 
-/*---------------------------------  file storage        ---------*/
 ast* data_division()
 {
-
     ast* ret = NULL;
     ast* file_ret = NULL;
     ast* ws_ret = NULL;
     ast* link_ret = NULL;
 
-    debug_2("Trying to match rule : %s \n", __FUNCTION__);
+    debug_2("Tentando casar : %s \n", __FUNCTION__);
 
     if(match_val("DATA")) {
         ;
@@ -153,7 +126,7 @@ ast* data_division()
     }
 
     if(!equal_val("PROCEDURE")) {
-        printf("expected procedure but found (%s)type(%s)l(%d)c(%d)\n",
+        printf("esperado PROCEDURE, mas encontrado (%s)type(%s)l(%d)c(%d)\n",
                get_token_val(),
                get_token_type(),
                get_token_line(),
@@ -165,13 +138,13 @@ ast* data_division()
 
     return ret;
 }
-/*---------------------------------  file storage        ---------*/
+
 ast* file_section()
 {
 
     ast* ret = NULL;
 
-    debug_2("Trying to match rule : %s \n", __FUNCTION__);
+    debug_2("Tentando casar : %s \n", __FUNCTION__);
 
     if(match_val("FILE")) {
         ;
@@ -188,14 +161,13 @@ ast* file_section()
     } else
         return 0;
 
-    // lire jusqua sortir de la file section
     while(!equal_val("WORKING-STORAGE") && !equal_val("LINKAGE") && !equal_val("PROCEDURE") &&
           !equal_type("PROGRAM$") && !equal_type("ERROR")) {
         consume();
     }
 
     if(equal_type("PROGRAM$") || equal_type("ERROR")) {
-        printf("expected working-storage, linkage or procedure \n");
+        printf("esperado WORKING-STORAGE, LINKAGE or PROCEDURE \n");
         exit(EXIT_FAILURE);
     }
 
@@ -229,18 +201,17 @@ ast* file_section()
                      NULL,
                      UNKNOWN_SECTION);
 
-    debug_2("Rule recognized: %s \n", __FUNCTION__);
+    debug_2("Reconhecido: %s \n", __FUNCTION__);
 
     return ret;
 }
 
-/*---------------------------------  working storage        ---------*/
 ast* working_storage_section()
 {
 
     ast* ret = NULL;
 
-    debug_2("Trying to match rule : %s \n", __FUNCTION__);
+    debug_2("Tentando casar : %s \n", __FUNCTION__);
 
     if(match_val("WORKING-STORAGE")) {
         ;
@@ -267,21 +238,20 @@ ast* working_storage_section()
     }
 
     if(equal_type("PROGRAM$") || equal_type("ERROR")) {
-        printf("expected linkage or procedure \n");
+        printf("esperado LINKAGE or PROCEDURE \n");
         exit(EXIT_FAILURE);
     }
 
-    debug_2("Rule recognized: %s \n", __FUNCTION__);
+    debug_2("Reconhecido: %s \n", __FUNCTION__);
 
     return ret;
 }
 
-/*---------------------------------  linkage                ---------*/
 ast* linkage_section()
 {
 
     ast* ret = NULL;
-    debug_2("Trying to match rule : %s \n", __FUNCTION__);
+    debug_2("Tentando casar : %s \n", __FUNCTION__);
 
     if(match_val("LINKAGE")) {
         ;
@@ -308,16 +278,14 @@ ast* linkage_section()
     }
 
     if(equal_type("PROGRAM$") || equal_type("ERROR")) {
-        printf("expected  procedure \n");
+        printf("esperado PROCEDURE \n");
         exit(EXIT_FAILURE);
     }
 
-    debug_2("Rule recognized: %s \n", __FUNCTION__);
+    debug_2("Reconhecido: %s \n", __FUNCTION__);
 
     return ret;
 }
-
-/*---------------------------------  Sentence and Statement ---------*/
 
 ast* sntce()
 {
@@ -327,7 +295,7 @@ ast* sntce()
     int nb_statement = 0;
     ast* list_statement = NULL;
 
-    debug_2("Trying to match rule : sntce \n");
+    debug_2("Tentando casar : sntce \n");
 
     while((equal_val("MOVE")) || (equal_val("DISPLAY")) || (equal_val("INITIALIZE"))) {
 
@@ -336,24 +304,16 @@ ast* sntce()
             nb_statement++;
             list_statement = append_list(list_statement, stmnt_ret);
 
-            /*  (ret->node.sentence.nb_statement)++; */
-            /* bug tres bizzare: list_statement->next nest pas null mai egale
-               au list_statement, le patch est provisoire eet peux causer
-               perte de noeud si append de plusieur noeud a la fois */
-            /*  ret->node.sentence.list_statement=append_list
-                                (ret->node.sentence.list_statement,stmnt_ret);
-            */
         } else
             return NULL;
     }
 
-    /* optional */
     if(equal_val("."))
         consume();
 
     if(list_statement) {
         ret = make_sentence(nb_statement, list_statement);
-        debug_2("Rule recognized: sntce \n");
+        debug_2("Reconhecido: sntce \n");
         return ret;
     } else
         return NULL;
@@ -361,7 +321,7 @@ ast* sntce()
 
 ast* stmnt()
 {
-    debug_2("Trying to match rule : stmnt \n");
+    debug_2("Tentando casar : stmnt \n");
 
     ast* ret = NULL;
 
@@ -387,16 +347,14 @@ ast* stmnt()
     } else
         return NULL;
 
-    debug_2("Rule recognized: stmnt \n.");
+    debug_2("Reconhecido: stmnt \n.");
 
     return ret;
 }
 
-/*--------------------  move, display and initialize Statement ------*/
-
 ast* move()
 {
-    debug_2("Trying to match rule : move \n");
+    debug_2("Tentando casar : move \n");
     /*
         if (move_2()) {
             ;
@@ -418,18 +376,17 @@ ast* move()
     } else
         return 0;
 
-    debug_2("Rule recognized: move \n");
+    debug_2("Reconhecido: move \n");
     return ret;
 }
 
 ast* dsply()
 {
-    debug_2("Trying to match rule : dsply \n");
+    debug_2("Tentando casar : dsply \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
 
-    /*  BUILD AST : DISPLAY_STM */
     ret = make_display(0, 0, "", 0, NULL);
 
     if(match_val("DISPLAY")) {
@@ -440,12 +397,10 @@ ast* dsply()
     if(sub_ret = ids_litrs()) {
 
         ret->node.display_stm.list_operand = append_list(ret->node.display_stm.list_operand, sub_ret);
-        /* attention un append peut ajouter plus qu'un seul operand */
         (ret->node.display_stm.nb_operand)++;
     } else
         return NULL;
 
-    /* optional */
     if(equal_val("UPON")) {
         if(dsply_upon()) {
             ret->node.display_stm.bool_upon = 1;
@@ -453,7 +408,6 @@ ast* dsply()
             return NULL;
     }
 
-    /* optional */
     if((equal_val("WITH")) || (equal_val("NO"))) {
         if(dsply_noadv()) {
             ret->node.display_stm.bool_no_adv = 1;
@@ -461,14 +415,14 @@ ast* dsply()
             return NULL;
     }
 
-    debug_2("Rule recognized: dsply \n");
+    debug_2("Reconhecido: dsply \n");
 
     return ret;
 }
 
 ast* intlz()
 {
-    debug_2("Trying to match rule : intlz \n");
+    debug_2("Tentando casar : intlz \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -484,7 +438,6 @@ ast* intlz()
     } else
         return NULL;
 
-    /* optional */
     if(equal_val("REPLACING")) {
 
         if(intlz_rplc()) {
@@ -495,16 +448,14 @@ ast* intlz()
 
     ret = make_initialize(bool_rplc, 0, sub_ret);
 
-    debug_2("Rule recognized: intlz \n");
+    debug_2("Reconhecido: intlz \n");
 
     return ret;
 }
 
-/*------------------ initialize body --------------------------------*/
-
 int intlz_rplc()
 {
-    debug_2("Trying to match rule : intlz_rplc \n");
+    debug_2("Tentando casar : intlz_rplc \n");
 
     if(match_val("REPLACING")) {
         ;
@@ -516,14 +467,14 @@ int intlz_rplc()
     } else
         return 0;
 
-    debug_2("Rule recognized: intlz_rplc \n");
+    debug_2("Reconhecido: intlz_rplc \n");
 
     return 1;
 }
 
 int intlz_rplc_oprnds()
 {
-    debug_2("Trying to match rule : intlz_rplc_oprnds \n");
+    debug_2("Tentando casar : intlz_rplc_oprnds \n");
 
     int ret = 0;
 
@@ -537,14 +488,14 @@ int intlz_rplc_oprnds()
     }
 
     if(ret == 1)
-        debug_2("Rule recognized: intlz_rplc_oprnds \n");
+        debug_2("Reconhecido: intlz_rplc_oprnds \n");
     return ret;
 }
 
 int intlz_rplc_oprnd()
 {
 
-    debug_2("Trying to match rule : intlz_rplc_oprnd \n");
+    debug_2("Tentando casar : intlz_rplc_oprnd \n");
 
     if(chartype()) {
         ;
@@ -561,13 +512,13 @@ int intlz_rplc_oprnd()
     } else
         return 0;
 
-    debug_2("Rule recognized: intlz_rplc_oprnd \n");
+    debug_2("Reconhecido: intlz_rplc_oprnd \n");
     return 1;
 }
 
 int chartype()
 {
-    debug_2("Trying to match rule : chartype \n");
+    debug_2("Tentando casar : chartype \n");
 
     if(match_val("ALPHABETIC")) {
         ;
@@ -578,66 +529,14 @@ int chartype()
     } else
         return 0;
 
-    debug_2("Rule recognized: chartype \n");
+    debug_2("Reconhecido: chartype \n");
     return 1;
 }
 
-/*-------------------------- move body ------------------------------*/
-/*
-int move_1(){
-
-    debug_2("Trying to match rule : move_1 \n");
-
-    if(match("MOVE")){
-        ;
-    }
-    else return  0;
-
-    if(id_litr()){
-        ;
-    }
-    else return  0;
-
-    if(match("TO")){
-        ;
-    }
-    else return  0;
-
-    if(ids()){
-        ;
-    }
-    else return  0;
-
-    debug_2("Rule recognized: move_1 \n");
-    return 1;
-
-}
-*/
-/* backtracking ? */
-/*
-int move_2()
-{
-    debug_2("Trying to match rule : move_2 \n");
-
-    if(match("MOVE")){
-        ;
-    }
-    else return  0;
-
-    if(corspnd()){
-        ;
-    }
-    else return  0;
-
-    debug_2("Rule recognized: move_2 \n");
-
-    return 1;
-}
-*/
 ast* move_oprnd()
 {
 
-    debug_2("Trying to match rule : move_oprnd \n");
+    debug_2("Tentando casar : move_oprnd \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -687,39 +586,14 @@ ast* move_oprnd()
     debug_3("g_oprnd (%s) r_oprnd (%s) \n", tagValues[g_oprnd->tag], tagValues[r_oprnd->tag]);
     ret = make_move(bool_corresp, 0, g_oprnd, r_oprnd);
 
-    /*
-    if(id_litr()){
-        if(match("TO")){
-            if(ids()){
-                ;
-            }
-            else return  0;
-        }
-        else return  0;
-    }
-    else {
-        if(corspnd()){
-            if(id()){
-                if(match("TO")){
-                    if(id()){
-                        ;
-                    }
-                    else return  0;
-                }
-                else return  0;
-            }
-            else return  0;
-        }
-        else return  0;
-    }
-    */
-    debug_2("Rule recognized: move_oprnd \n");
+   
+    debug_2("Reconhecido: move_oprnd \n");
     return ret;
 }
 
 ast* corspnd()
 {
-    debug_2("Trying to match rule : corspnd \n");
+    debug_2("Tentando casar : corspnd \n");
 
     if(match_val("CORRESPONDING")) {
         ;
@@ -730,15 +604,13 @@ ast* corspnd()
 
     ast* ret = make_ast();
 
-    debug_2("Rule recognized : corspnd \n");
+    debug_2("Reconhecido : corspnd \n");
     return ret;
 }
 
-/*--------------------------- display body --------------------------*/
-
 int dsply_upon()
 {
-    debug_2("Trying to match rule : dsply_upon \n");
+    debug_2("Tentando casar : dsply_upon \n");
 
     if(match_val("UPON")) {
         ;
@@ -750,16 +622,15 @@ int dsply_upon()
     } else
         return 0;
 
-    debug_2("Rule recognized : dsply_upon \n");
+    debug_2("Reconhecido : dsply_upon \n");
 
     return 1;
 }
 
 int dsply_noadv()
 {
-    debug_2("Trying to match rule : dsply_noadv \n");
+    debug_2("Tentando casar : dsply_noadv \n");
 
-    /* optional */
     if(match_val("WITH")) {
         ;
     }
@@ -774,42 +645,40 @@ int dsply_noadv()
     } else
         return 0;
 
-    debug_2("Rule recognized : dsply_noadv \n");
+    debug_2("Reconhecido : dsply_noadv \n");
 
     return 1;
 }
 
 int dsply_upon_oprnd()
 {
-    debug_2("Trying to match rule : dsply_upon_oprnd \n");
+    debug_2("Tentando casar : dsply_upon_oprnd \n");
 
     if(mnemo_or_envir()) {
         ;
     } else
         return 0;
 
-    debug_2("Rule recognized : dsply_upon_oprnd \n");
+    debug_2("Reconhecido : dsply_upon_oprnd \n");
     return 1;
 }
 
 int mnemo_or_envir()
 {
-    debug_2("Trying to match rule : mnemo_or_envir \n");
+    debug_2("Tentando casar : mnemo_or_envir \n");
 
     if(id_name()) {
         ;
     } else
         return 0;
 
-    debug_2("Rule recognized : mnemo_or_envir \n");
+    debug_2("Reconhecido : mnemo_or_envir \n");
     return 1;
 }
 
-/*----------------------  Identifiers and Literals ------------------*/
-
 ast* ids_litrs()
 {
-    debug_2("Trying to match rule : ids_litrs \n");
+    debug_2("Tentando casar : ids_litrs \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -821,7 +690,7 @@ ast* ids_litrs()
     }
 
     if(ret)
-        debug_2("Rule recognized: ids_litrs (%d) \n", ret);
+        debug_2("Reconhecido: ids_litrs (%d) \n", ret);
 
     return ret;
 }
@@ -829,7 +698,7 @@ ast* ids_litrs()
 ast* id_litr()
 {
 
-    debug_2("Trying to match rule : id_litr \n");
+    debug_2("Tentando casar : id_litr \n");
 
     ast* ret = NULL;
 
@@ -850,14 +719,14 @@ ast* id_litr()
             return NULL;
     }
 
-    debug_2("Rule recognized: id_litr \n");
+    debug_2("Reconhecido: id_litr \n");
     return ret;
 }
 
 ast* ids()
 {
 
-    debug_2("Trying to match rule : ids \n");
+    debug_2("Tentando casar : ids \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -872,20 +741,17 @@ ast* ids()
     }
 
     if(ret)
-        debug_2("Rule recognized: ids \n");
+        debug_2("Reconhecido: ids \n");
     return ret;
 }
-
-/*-----------------------  Identifier and Literal -------------------*/
 
 ast* litr()
 {
 
-    debug_2("Trying to match rule : litr \n");
+    debug_2("Tentando casar : litr \n");
 
     ast* ret = NULL;
 
-    /* figurative constants */
     if(equal_attr("FIGURATIVE CONST")) {
 
         if(ret = figurative_constants()) {
@@ -894,18 +760,15 @@ ast* litr()
             return NULL;
     } else
 
-        /* nonnumeric and numeric literals  */
         if(equal_type("LITERAL")) {
 
-        /*  BUILD AST : LITERAL */
         ret = build_literal(0);
         consume();
     } else
         return NULL;
 
-    debug_2("Rule recognized: litr \n");
-    /*  printf("ret tag (%s)(%d) \n",tagValues[ret->tag],ret->tag);
-*/ return ret;
+    debug_2("Reconhecido: litr \n");
+    return ret;
 }
 
 ast* figurative_constants()
@@ -916,19 +779,18 @@ ast* figurative_constants()
 
     int bool_all = 0;
 
-    debug_2("Trying to match rule : figurative_constants \n");
+    debug_2("Tentando casar : figurative_constants \n");
 
     if(equal_val("ALL")) {
 
         bool_all = 1;
         consume();
     }
-    /* QUOTED  est pr{sent ici dans le cas ou ALL est consomm{ */
+
     if(equal_attr("QUOTED") || equal_val("ZERO") || equal_val("ZEROS") || equal_val("ZEROES") || equal_val("SPACE") ||
        equal_val("SPACES") || equal_val("HIGH-VALUE") || equal_val("HIGH-VALUES") || equal_val("LOW-VALUE") ||
        equal_val("LOW-VALUES") || equal_val("QUOTE") || equal_val("QUOTES")) {
 
-        /*  BUILD AST : LITERAL */
         figurative_ret = build_literal(bool_all);
         ret = append_list(ret, figurative_ret);
 
@@ -937,14 +799,14 @@ ast* figurative_constants()
     } else
         return NULL;
 
-    debug_2("Rule recognized: figurative_constants \n");
+    debug_2("Reconhecido: figurative_constants \n");
     return ret;
 }
 
 ast* id()
 {
 
-    debug_2("Trying to match rule : id \n");
+    debug_2("Tentando casar : id \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -966,7 +828,6 @@ ast* id()
         } else
             return NULL;
 
-        /* optional */
         if(equal_val("OF")) {
             if(sub_ret = id_qualif()) {
                 qualif_ret = append_list(qualif_ret, sub_ret);
@@ -975,14 +836,11 @@ ast* id()
                 return NULL;
         }
 
-        /* optional subscript and refmodifier */
         if(equal_val("(")) {
 
-            /* une fois rentr{, ca devient obligatoire */
             if(sub_ret = id_subs_refm()) {
                 debug_3("id_subs_refm ret->tag (%s) ret->next (%d) \n", tagValues[sub_ret->tag], sub_ret->next);
 
-                /* separer les noeuds subs de refm */
                 if(sub_ret->tag == IDENT_SUBSCRIPT) {
                     subscr_ret = sub_ret;
                     if(sub_ret->next->tag == IDENT_REFMOD) {
@@ -1005,14 +863,14 @@ ast* id()
         ret = make_identifier(0, 0, 0, name_ret, qualif_ret, subscr_ret, refmod_ret);
     }
 
-    debug_2("Rule recognized: id \n");
+    debug_2("Reconhecido: id \n");
     return ret;
 }
 
 ast* special_register()
 {
 
-    debug_2("Trying to match rule : special_register \n");
+    debug_2("Tentando casar : special_register \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -1020,7 +878,6 @@ ast* special_register()
     int bool_length = 0;
     int bool_address = 0;
 
-    /* gestion de special register avec OF */
     if((equal_val("LENGTH")) || (equal_val("ADDRESS"))) {
 
         if(equal_val("LENGTH"))
@@ -1053,7 +910,7 @@ ast* special_register()
     } else
         return NULL;
 
-    debug_2("Rule recognized: special_register \n");
+    debug_2("Reconhecido: special_register \n");
     return ret;
 }
 
@@ -1071,7 +928,6 @@ ast* id_name_qualif()
     } else
         return NULL;
 
-    /* optional */
     if(equal_val("OF")) {
         if(qualif_ret = id_qualif()) {
             /*        ret->node.ident_name_qualif.qualif=sub_ret; */
@@ -1090,7 +946,7 @@ ast* id_names()
     ast* ret = NULL;
     ast* sub_ret = NULL;
 
-    debug_2("Trying to match rule : id_names \n");
+    debug_2("Tentando casar : id_names \n");
 
     while(equal_type("IDENTIFIER")) {
 
@@ -1102,14 +958,14 @@ ast* id_names()
     }
 
     if(ret)
-        debug_2("Rule recognized: id_names \n");
+        debug_2("Reconhecido: id_names \n");
 
     return ret;
 }
 
 ast* id_name()
 {
-    debug_2("Trying to match rule : id_name \n");
+    debug_2("Tentando casar : id_name \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -1120,13 +976,13 @@ ast* id_name()
     } else
         return NULL;
 
-    debug_2("Rule recognized: id_name \n");
+    debug_2("Reconhecido: id_name \n");
     return ret;
 }
 
 ast* id_qualif()
 {
-    debug_2("Trying to match rule : id_qualif \n");
+    debug_2("Tentando casar : id_qualif \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -1140,7 +996,7 @@ ast* id_qualif()
     }
 
     if(ret)
-        debug_2("Rule recognized: id_qualif \n");
+        debug_2("Reconhecido: id_qualif \n");
     return ret;
 }
 
@@ -1150,7 +1006,7 @@ ast* id_qualif_oprnd()
     ast* ret = NULL;
     ast* sub_ret = NULL;
 
-    debug_2("Trying to match rule : id_qualif_oprnd \n");
+    debug_2("Tentando casar : id_qualif_oprnd \n");
 
     if(match_val("OF")) {
         ;
@@ -1162,10 +1018,10 @@ ast* id_qualif_oprnd()
     } else
         return NULL;
 
-    debug_2("Rule recognized: id_qualif_oprnd \n");
+    debug_2("Reconhecido: id_qualif_oprnd \n");
     return ret;
 }
-/* continue implementing ast here ... */
+
 ast* id_subs_refm()
 {
 
@@ -1173,13 +1029,13 @@ ast* id_subs_refm()
     ast* sub_ret = NULL;
     ast* oprnd1 = NULL;
 
-    debug_2("Trying to match rule : id_subs_refm \n");
+    debug_2("Tentando casar : id_subs_refm \n");
 
     if(match_val("(")) {
         ;
     } else
         return NULL;
-    /* concatener oprnd 1 avec le reste de subs et refm */
+
     if(oprnd1 = id_oprnd_1_subs_refm()) {
         ;
     } else
@@ -1190,7 +1046,7 @@ ast* id_subs_refm()
     } else
         return NULL;
 
-    debug_3("expecting IDENT_SUBSCRIPT OR REFMOD (%s)\n", tagValues[sub_ret->tag]);
+    debug_3("ESPERADO IDENT_SUBSCRIPT OR REFMOD (%s)\n", tagValues[sub_ret->tag]);
     if(sub_ret->tag == IDENT_SUBSCRIPT) {
 
         ast* head = sub_ret->node.ident_subscript.list_subscript;
@@ -1202,13 +1058,13 @@ ast* id_subs_refm()
 
     } else {
 
-        printf("expected IDENT_SUBSCRIPT OR REFMOD but found (%s)\n", tagValues[sub_ret->tag]);
+        printf("esperado IDENT_SUBSCRIPT OR REFMOD but found (%s)\n", tagValues[sub_ret->tag]);
         exit(EXIT_FAILURE);
     }
 
     ret = sub_ret;
 
-    /* patch pour enlever length vide */
+
 
     if(ret->tag == IDENT_REFMOD) {
         if(ret->node.ident_refmod.length->node.arith_exp.left == NULL)
@@ -1217,7 +1073,7 @@ ast* id_subs_refm()
 
     debug_3("id_subs_refm ret->tag (%s) ret->next (%d) \n", tagValues[ret->tag], ret->next);
 
-    debug_2("Rule recognized : id_subs_refm \n");
+    debug_2("Reconhecido : id_subs_refm \n");
     return ret;
 }
 
@@ -1227,21 +1083,21 @@ ast* id_oprnd_1_subs_refm()
     ast* ret = NULL;
     ast* sub_ret = NULL;
 
-    debug_2("Trying to match rule : id_oprnd_1_subs_refm \n");
+    debug_2("Tentando casar : id_oprnd_1_subs_refm \n");
 
     if(sub_ret = arith_expr()) {
         ret = append_list(ret, sub_ret);
     } else
         return NULL;
 
-    debug_2("Rule recognized : id_oprnd_1_subs_refm \n");
+    debug_2("Reconhecido : id_oprnd_1_subs_refm \n");
     return ret;
 }
 
 ast* id_subs_refm_rest()
 {
 
-    debug_2("Trying to match rule : id_subs_refm_rest \n");
+    debug_2("Tentando casar : id_subs_refm_rest \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -1251,20 +1107,17 @@ ast* id_subs_refm_rest()
 
     if(equal_val(":")) {
         if(sub_ret = id_refm_rest()) {
-            /* null pour charleft a remplacer par oprnd 1 */
             refmod_ret = make_ident_refmod(NULL, sub_ret);
             ret = append_list(ret, refmod_ret);
             ;
         } else
             return NULL;
     } else if(sub_ret = id_subs_rest()) {
-        /* 1er subscript absent/coquille: remplacer par oprnd 1 */
         subscript_ret = make_ident_subscript(sub_ret);
         ret = append_list(ret, subscript_ret);
 
         if(equal_val("(")) {
             if(sub_ret = id_refmodif()) {
-                /* refmod ast est cree par id_refmodif */
                 ret = append_list(ret, sub_ret);
                 ;
             } else
@@ -1276,17 +1129,13 @@ ast* id_subs_refm_rest()
     else
         return NULL;
 
-    /* ret = soit refmod sans charleft, soit subscripts avec premier
-             subscript coquille si seul ou absent si plusieurs
-             puis refmod ou non mais complet (car subscript avant) */
-
-    debug_2("Rule recognized : id_subs_refm_rest \n");
+    debug_2("Reconhecido : id_subs_refm_rest \n");
     return ret;
 }
 
 ast* id_refm_rest()
 {
-    debug_2("Trying to match rule : id_refm_rest \n");
+    debug_2("Tentando casar : id_refm_rest \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -1295,9 +1144,9 @@ ast* id_refm_rest()
         ;
     } else
         return NULL;
-    /* length peut etre une arith_exp vide */
+
     if(sub_ret = refmodif_length()) {
-        /* arith_exp */
+
         ret = append_list(ret, sub_ret);
     } else
         return NULL;
@@ -1307,19 +1156,19 @@ ast* id_refm_rest()
     } else
         return NULL;
 
-    debug_2("Rule recognized : id_refm_rest \n");
+    debug_2("Reconhecido : id_refm_rest \n");
     return ret;
 }
 
 ast* id_subs_rest()
 {
-    debug_2("Trying to match rule : id_subs_rest \n");
+    debug_2("Tentando casar : id_subs_rest \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
 
     if(match_val(")")) {
-        /* creation d'une coquille AST pour le premier subscript */
+
         ret = make_arith_exp("", "", "", NULL, NULL);
         ;
     } else {
@@ -1335,13 +1184,13 @@ ast* id_subs_rest()
             return NULL;
     }
 
-    debug_2("Rule recognized : id_subs_rest \n");
+    debug_2("Reconhecido : id_subs_rest \n");
     return ret;
 }
 
 ast* id_subscript()
 {
-    debug_2("Trying to match rule : id_subscript \n");
+    debug_2("Tentando casar : id_subscript \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -1361,13 +1210,13 @@ ast* id_subscript()
     } else
         return NULL;
 
-    debug_2("Rule recognized: id_subscript \n");
+    debug_2("Reconhecido: id_subscript \n");
     return ret;
 }
 
 ast* id_refmodif()
 {
-    debug_2("Trying to match rule : id_refmodif \n");
+    debug_2("Tentando casar : id_refmodif \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -1387,15 +1236,14 @@ ast* id_refmodif()
     } else
         return NULL;
 
-    debug_2("Rule recognized: id_refmodif \n");
+    debug_2("Reconhecido: id_refmodif \n");
     return ret;
 }
 
-/*---------------------------  Identifier body ----------------------*/
 
 ast* subscripts()
 {
-    debug_2("Trying to match rule : subscripts \n");
+    debug_2("Tentando casar : subscripts \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -1405,13 +1253,13 @@ ast* subscripts()
     }
 
     if(ret)
-        debug_2("Rule recognized: subscripts \n");
+        debug_2("Reconhecido: subscripts \n");
     return ret;
 }
 
 ast* subscript()
 {
-    debug_2("Trying to match rule : subscript \n");
+    debug_2("Tentando casar : subscript \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -1421,7 +1269,7 @@ ast* subscript()
     } else
         return NULL;
 
-    debug_2("Rule recognized: subscript \n");
+    debug_2("Reconhecido: subscript \n");
     return ret;
 }
 
@@ -1432,7 +1280,7 @@ ast* refmodif()
     ast* charleftpos_ret = NULL;
     ast* refmodif_length_ret = NULL;
 
-    debug_2("Trying to match rule : refmodif \n");
+    debug_2("Tentando casar : refmodif \n");
 
     if(charleftpos_ret = charleftpos()) {
         ;
@@ -1444,7 +1292,6 @@ ast* refmodif()
     } else
         return NULL;
 
-    /* it's optional || */
     if(refmodif_length_ret = refmodif_length()) {
         ;
     } else
@@ -1452,7 +1299,7 @@ ast* refmodif()
 
     ret = make_ident_refmod(charleftpos_ret, refmodif_length_ret);
 
-    debug_2("Rule recognized: refmodif \n");
+    debug_2("Reconhecido: refmodif \n");
     return ret;
 }
 
@@ -1462,22 +1309,20 @@ ast* charleftpos()
     ast* ret = NULL;
     ast* sub_ret = NULL;
 
-    debug_2("Trying to match rule : charleftpos \n");
+    debug_2("Tentando casar : charleftpos \n");
 
     if(sub_ret = arith_expr()) {
         ret = append_list(ret, sub_ret);
     } else
         return NULL;
 
-    debug_2("Rule recognized: charleftpos \n");
+    debug_2("Reconhecido: charleftpos \n");
     return ret;
 }
 
 ast* refmodif_length()
 {
-    debug_2("Trying to match rule : refmodif_length \n");
-
-    /*optional */
+    debug_2("Tentando casar : refmodif_length \n");
 
     ast* ret = NULL;
 
@@ -1489,36 +1334,13 @@ ast* refmodif_length()
     } else {
         ret = make_arith_exp("", "", "", NULL, NULL);
     }
-    debug_2("Rule recognized: refmodif_length \n");
+    debug_2("Reconhecido: refmodif_length \n");
     return ret;
 }
 
-/*-------------------------  Arithmetic expression ------------------*/
-/*
-int arith_expr_old()
-{
-    debug_2("Trying to match rule : arith_expr_old \n");
-
-    if(arith_expr_oprnd()){
-        ;
-    }
-    else return  0;
-
-       optional
-    if(arith_expr_oprtn()){
-        if(arith_expr()){
-            ;
-        }
-        else return  0;
-    }
-
-    debug_2("Rule recognized: arith_expr_old \n");
-    return 1;
-}
-*/
 ast* arith_expr()
 {
-    debug_2("Trying to match rule : arith_expr \n");
+    debug_2("Tentando casar : arith_expr \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -1528,7 +1350,6 @@ ast* arith_expr()
     char oper[3] = "";
 
     if(left = times_div()) {
-        /* attention aux variables string */
         ret = make_arith_exp("", "", "", left, NULL);
         ;
     } else
@@ -1549,13 +1370,13 @@ ast* arith_expr()
         ret = make_arith_exp("", "", "", ret, NULL);
     }
 
-    debug_2("Rule recognized: arith_expr \n");
+    debug_2("Reconhecido: arith_expr \n");
     return ret;
 }
 
 ast* times_div()
 {
-    debug_2("Trying to match rule : times_div \n");
+    debug_2("Tentando casar : times_div \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -1565,8 +1386,7 @@ ast* times_div()
     char oper[3] = "";
 
     if(left = power()) {
-        /* attention aux variables string */
-        ret = make_arith_exp("", "", "", left, NULL);
+       ret = make_arith_exp("", "", "", left, NULL);
         ;
     } else
         return NULL;
@@ -1586,13 +1406,13 @@ ast* times_div()
         ret = make_arith_exp("", "", "", ret, NULL);
     }
 
-    debug_2("Rule recognized: times_div \n");
+    debug_2("Reconhecido: times_div \n");
     return ret;
 }
 
 ast* power()
 {
-    debug_2("Trying to match rule : power \n");
+    debug_2("Tentando casar : power \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -1613,7 +1433,7 @@ ast* power()
     }
 
     if(left = basis()) {
-        /* attention aux variables string */
+
         ret = make_arith_exp("", "", sign, left, NULL);
         strcpy(sign, "");
     } else
@@ -1635,15 +1455,14 @@ ast* power()
         ret = make_arith_exp("", "", "", ret, NULL);
     }
 
-    /* ret est unaire (left seulement) */
 
-    debug_2("Rule recognized: power \n");
+    debug_2("Reconhecido: power \n");
     return ret;
 }
 
 ast* basis()
 {
-    debug_2("Trying to match rule : basis \n");
+    debug_2("Tentando casar : basis \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -1656,7 +1475,6 @@ ast* basis()
             return NULL;
     } else if((equal_val("("))) {
 
-        /* bug de caca ! ne pas oublier de consommer le ( */
         consume();
 
         if(sub_ret = arith_expr()) {
@@ -1669,7 +1487,6 @@ ast* basis()
         } else
             return NULL;
     }
-    /* ZERO/ZEROS/ZEROS inclut */
     else if(equal_attr("NUMERIC")) {
 
         if(equal_type("LITERAL")) {
@@ -1689,13 +1506,13 @@ ast* basis()
     else
         return NULL;
 
-    debug_2("Rule recognized: basis \n");
+    debug_2("Reconhecido: basis \n");
     return ret;
 }
 
 ast* arith_expr2()
 {
-    debug_2("Trying to match rule : arith_expr2 \n");
+    debug_2("Tentando casar : arith_expr2 \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -1710,11 +1527,10 @@ ast* arith_expr2()
         consume();
 
     } else if(sub_ret = id_name_qualif()) {
-        /* id_name_qualif retourn d{sormais un identifier */
+
         left = make_identifier(
             0, 0, 0, sub_ret->node.ident_name_qualif.name, sub_ret->node.ident_name_qualif.qualif, NULL, NULL);
 
-        /* optional */
         if((equal_val("+")) || (equal_val("-"))) {
 
             strcpy(oper, get_token_val());
@@ -1736,71 +1552,14 @@ ast* arith_expr2()
 
     ret = make_arith_exp("", oper, "", left, right);
 
-    debug_2("Rule recognized: arith_expr2 \n");
+    debug_2("Reconhecido: arith_expr2 \n");
     return ret;
 }
-/*
-int arith_expr2_old()
-{
-    debug_2("Trying to match rule : arith_expr2_old \n");
 
-    if(arith_expr_oprnd()){
-        ;
-    }
-    else return  0;
-
-       optional
-    if(arith_expr_oprtn()){
-        if(arith_expr_oprnd()){
-            ;
-        }
-        else return  0;
-    }
-
-    debug_2("Rule recognized: arith_expr2_old \n");
-    return 1;
-}
-
-int arith_expr_oprnd()
-{
-    debug_2("Trying to match rule : arith_expr_oprnd \n");
-
-    if (match("INTEGER")){
-        ;
-    }
-    else if (id_name_qualif()){
-        ;
-    }
-    else return  0;
-
-    debug_2("Rule recognized: arith_expr_oprnd \n");
-    return 1;
-}
-
-int arith_expr_oprtn()
-{
-    debug_2("Trying to match rule : arith_expr_oprtn \n");
-
-    if (match("+")){
-        ;
-    }
-    else if (match("-")){
-        ;
-    }
-    else if (match("*")){
-        ;
-    }
-    else return  0;
-
-    debug_2("Rule recognized: arith_expr_oprtn \n");
-    return 1;
-}
-*/
-/*---------------------- Data declaration    ------------------------*/
 ast* data_fields()
 {
 
-    debug_2("Trying to match rule : data_fields \n");
+    debug_2("Tentando casar : data_fields \n");
 
     ast* ret = NULL;
     ast* driver = NULL;
@@ -1906,34 +1665,28 @@ ast* data_fields()
 
                 debug_2("(%d-%s) >  (%d-%s) ", FLD_LVL(driver), FLD_NAME(driver), FLD_LVL(sub_ret), FLD_NAME(sub_ret));
 
-                /* parcourir array pour trouver lvl <= lvl du sub_ret */
                 for(i = FLD_LVL(sub_ret); i > 0; i--) {
                     debug_3("loop lvl array (%d) ", i);
                     if(lvl_arr[i]) {
-                        /* nouveau driver est celui trouve */
+
                         driver = lvl_arr[i];
                         debug_2(" lvl found(%d-%s)", FLD_LVL(driver), FLD_NAME(driver));
 
-                        /* si meme lvl non trouve */
+
                         if(FLD_LVL(sub_ret) > i) {
-                            // append to child
-                            // ca rend sub_ret frere des child de driver
-                            // du coup deux lvl different peuvent etre freres
                             FLD_PARENT(sub_ret) = driver;
                             FLD_NB_PARENT(sub_ret) = FLD_NB_PARENT(driver) + 1;
                             FLD_NB_BCHON(sub_ret) = FLD_NB_BCHON(driver);
                             append_child(driver, sub_ret);
                             debug_2("append to child \n");
 
-                        } else { /*  i = lvl de sub_ret  */
-                            /* append to sister */
+                        } else { 
                             FLD_PARENT(sub_ret) = FLD_PARENT(driver);
                             FLD_NB_PARENT(sub_ret) = FLD_NB_PARENT(driver);
                             FLD_NB_BCHON(sub_ret) = FLD_NB_BCHON(driver);
                             append_list(driver, sub_ret);
                             debug_2("append to sister \n");
                         }
-                        // un field superior trouve quitter
                         break;
                     } else {
                         debug_3("not found\n");
@@ -1975,7 +1728,7 @@ ast* data_fields()
     }
 
     if(ret)
-        debug_2("Rule recognized: data_fields \n");
+        debug_2("Reconhecido: data_fields \n");
 
     return ret;
 }
@@ -1983,7 +1736,7 @@ ast* data_fields()
 ast* data_field()
 {
 
-    debug_2("Trying to match rule : data_field \n");
+    debug_2("Tentando casar : data_field \n");
 
     ast* ret = NULL;
     ast* name_ret = NULL;
@@ -2077,14 +1830,13 @@ ast* data_field()
 
     ret = update_field_init(ret, name_ret, field_name, field_lvl, lvl);
 
-    debug_2("Rule recognized: data_field \n");
+    debug_2("Reconhecido: data_field \n");
     return ret;
 }
-/*---------------------- Declaration  body   ------------------------*/
 
 ast* cond_name()
 {
-    debug_2("Trying to match rule : cond_name \n");
+    debug_2("Tentando casar : cond_name \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -2100,7 +1852,7 @@ ast* cond_name()
     } else
         return NULL;
 
-    debug_2("Rule recognized: cond_name \n");
+    debug_2("Reconhecido: cond_name \n");
     return ret;
 }
 
@@ -2108,24 +1860,11 @@ ast* cond_name()
 
 ast* data_desc()
 {
-    debug_2("Trying to match rule : data_desc \n");
+    debug_2("Tentando casar : data_desc \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
     ast* redefines_ret = NULL;
-
-    /* Not all clauses are compatible with each other */
-    /* Semantic for further analysis and elimination */
-
-    /* add permutation */
-    /* Union for all the clause to permute */
-    /* an array of function pointer        */
-    /* a while loop                        */
-    /* if a clause is found                */
-    /* take it off from the array          */
-
-    /* Known bug : normalement global peut venir avant redefines */
-    /* Mais pour nous redefines doit obligatoirement etre en premier */
 
     if(equal_val("REDEFINES")) {
 
@@ -2135,10 +1874,8 @@ ast* data_desc()
             return NULL;
     }
 
-    /* Array of clauses to permute      */
     fp_t_nod* clauses;
     clauses = alim_clauses();
-    /* print_clauses(clauses); */
 
     fp_t_nod* iterator = clauses;
 
@@ -2176,48 +1913,35 @@ ast* data_desc()
     while(iterator != NULL) {
 
         debug_3("Permutation loop .iterator (%d)\n", iterator);
-        /* Known bug : 'IS' is accepted before each clause || */
-        /* if should be for external et gloabal only          */
-        /* A deleguer a l'analyse semantique                  */
+
         if(equal_val("IS")) {
 
             consume();
         }
 
-        /* if lookahead match    */
+
         if(tkn_in_array(iterator->val.cond_1)) {
-            /* invoquer la function pointer */
             if(sub_ret = iterator->val.fp()) {
                 debug_2("Function pointer (%d) invoked after cond \n", iterator->val.id);
                 update_field(ret, sub_ret, iterator->val.tag);
             } else
                 return NULL;
 
-            /* Reduire la ligne de la liste chaine */
             clauses = delete_clauses(clauses, iterator);
-            /* Repointer vers la tete de la chaine */
             iterator = clauses;
         } else {
-            /* pointer vers le noeud suivant */
             iterator = iterator->next;
         }
     }
 
-    /* Not implemented clause : Like */
-    /* Not implemented clause : Typedef */
-
-    /* Not implemented clause : Type    */
-
-    debug_2("Rule recognized: data_desc \n");
+    debug_2("Reconhecido: data_desc \n");
     return ret;
 }
-
-/*--------------------- Data declaration functions ------------------*/
 
 ast* data_redefines_cl()
 {
 
-    debug_2("Trying to match rule : data_redefines_cl \n");
+    debug_2("Tentando casar : data_redefines_cl \n");
 
     ast* ret = NULL;
 
@@ -2231,7 +1955,7 @@ ast* data_redefines_cl()
     } else
         return NULL;
 
-    debug_2("Rule recognized: data_redefines_cl \n");
+    debug_2("Reconhecido: data_redefines_cl \n");
     return ret;
 }
 
@@ -2240,7 +1964,7 @@ ast* data_redefines_cl()
 ast* data_external_cl()
 {
 
-    debug_2("Trying to match rule : data_external_cl \n");
+    debug_2("Tentando casar : data_external_cl \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -2250,7 +1974,7 @@ ast* data_external_cl()
     } else
         return NULL;
 
-    debug_2("Rule recognized: data_external_cl \n");
+    debug_2("Reconhecido: data_external_cl \n");
     return ret;
 }
 
@@ -2259,7 +1983,7 @@ ast* data_external_cl()
 ast* data_blankzero_cl()
 {
 
-    debug_2("Trying to match rule : data_blankzero_cl \n");
+    debug_2("Tentando casar : data_blankzero_cl \n");
 
     ast* ret = NULL;
 
@@ -2280,7 +2004,7 @@ ast* data_blankzero_cl()
 
     ret = make_ast();
 
-    debug_2("Rule recognized: data_blankzero_cl \n");
+    debug_2("Reconhecido: data_blankzero_cl \n");
     return ret;
 }
 
@@ -2289,7 +2013,7 @@ ast* data_blankzero_cl()
 ast* data_global_cl()
 {
 
-    debug_2("Trying to match rule : data_global_cl \n");
+    debug_2("Tentando casar : data_global_cl \n");
 
     ast* ret = NULL;
 
@@ -2300,7 +2024,7 @@ ast* data_global_cl()
 
     ret = make_ast();
 
-    debug_2("Rule recognized: data_global_cl \n");
+    debug_2("Reconhecido: data_global_cl \n");
     return ret;
 }
 
@@ -2309,7 +2033,7 @@ ast* data_global_cl()
 ast* data_just_cl()
 {
 
-    debug_2("Trying to match rule : data_just_cl \n");
+    debug_2("Tentando casar : data_just_cl \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -2319,7 +2043,7 @@ ast* data_just_cl()
         consume();
 
     } else
-        return NULL; /* ajout{ au cours de ast */
+        return NULL; 
 
     if((equal_val("RIGHT"))) {
 
@@ -2328,16 +2052,15 @@ ast* data_just_cl()
 
     ret = make_ast();
 
-    debug_2("Rule recognized: data_just_cl \n");
+    debug_2("Reconhecido: data_just_cl \n");
     return ret;
 }
 
-/*------*/
 
 ast* data_occurs_cl()
 {
 
-    debug_2("Trying to match rule : data_occurs_cl \n");
+    debug_2("Tentando casar : data_occurs_cl \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -2393,7 +2116,6 @@ ast* data_occurs_cl()
         } else
             return NULL;
 
-        /* Key-indexed-by phrase */
 
         if((equal_val("ASCENDING")) || (equal_val("DESCENDING"))) {
 
@@ -2413,7 +2135,6 @@ ast* data_occurs_cl()
 
     }
 
-    /* Format 1 */
 
     else {
 
@@ -2422,7 +2143,6 @@ ast* data_occurs_cl()
             consume();
         }
 
-        /* Key-indexed-by phrase */
 
         if((equal_val("ASCENDING")) || (equal_val("DESCENDING"))) {
 
@@ -2443,14 +2163,14 @@ ast* data_occurs_cl()
 
     ret = make_occurs(times, to_times, depend_on, keys, indexes);
 
-    debug_2("Rule recognized: data_occurs_cl \n");
+    debug_2("Reconhecido: data_occurs_cl \n");
     return ret;
 }
 
 ast* data_index_key_cls()
 {
 
-    debug_2("Trying to match rule : data_index_key_cls \n");
+    debug_2("Tentando casar : data_index_key_cls \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -2473,7 +2193,7 @@ ast* data_index_key_cls()
     }
 
     if(ret)
-        debug_2("Rule recognized: data_index_key_cls \n");
+        debug_2("Reconhecido: data_index_key_cls \n");
 
     return ret; /* occurs_key */
 }
@@ -2481,7 +2201,7 @@ ast* data_index_key_cls()
 ast* data_index_key_cl()
 {
 
-    debug_2("Trying to match rule : data_index_key_cl \n");
+    debug_2("Tentando casar : data_index_key_cl \n");
 
     ast* ret = NULL;
 
@@ -2507,14 +2227,14 @@ ast* data_index_key_cl()
     } else
         return NULL;
 
-    debug_2("Rule recognized: data_index_key_cl \n");
+    debug_2("Reconhecido: data_index_key_cl \n");
     return ret;
 }
 
 ast* data_index_by_cl()
 {
 
-    debug_2("Trying to match rule : data_index_by_cl \n");
+    debug_2("Tentando casar : data_index_by_cl \n");
 
     ast* ret = NULL;
 
@@ -2533,7 +2253,7 @@ ast* data_index_by_cl()
     } else
         return NULL;
 
-    debug_2("Rule recognized: data_index_by_cl \n");
+    debug_2("Reconhecido: data_index_by_cl \n");
     return ret;
 }
 
@@ -2542,7 +2262,7 @@ ast* data_index_by_cl()
 ast* data_pic_cl()
 {
 
-    debug_2("Trying to match rule : data_pic_cl \n");
+    debug_2("Tentando casar : data_pic_cl \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -2568,20 +2288,19 @@ ast* data_pic_cl()
             return NULL;
     }
 
-    /* consommer Space qui vient apres la fin de pic str  (??) */
     if(equal_type("SPACE")) {
 
         consume();
     }
 
-    debug_2("Rule recognized: data_pic_cl \n");
+    debug_2("Reconhecido: data_pic_cl \n");
     return ret;
 }
 
 ast* data_pic_str()
 {
 
-    debug_2("Trying to match rule : data_pic_str \n");
+    debug_2("Tentando casar : data_pic_str \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -2591,27 +2310,16 @@ ast* data_pic_str()
         consume();
     }
 
-    /* Lexer/Parser Hack */
-    /* pour ne pas accepter espace apres repeat : */
-    /* PIC 9(9) V                                 */
-    /* on consomme le premier espace apres pic et IS */
-    /* et puis enlever les espaces de token picchar  */
-
-    /* Space */
 
     if(equal_type("SPACE")) {
         consume();
     } else
         return NULL;
 
-    // bug : on ajoute une boucle de consommation space
-    //         08 I-EMTITRE-FININFO REDEFINES I-EMTITRE-NSIGFT   PIC
-    //   9(7).
     while(equal_type("SPACE")) {
         consume();
     }
 
-    /* Currency */
     if(equal_val("$")) {
         sub_ret = make_pic_cmpnt(PIC_CURRENCY, 0, "", get_token_val());
         ret = append_list(ret, sub_ret);
@@ -2620,17 +2328,11 @@ ast* data_pic_str()
 
     while(equal_type("PICCHARS")) {
 
-        /*  set_context("data_pic_chars");
-        */
-        /* PicChars */
         if(sub_ret = data_pic_chars()) {
             ret = append_list(ret, sub_ret);
         } else
             return NULL;
 
-        /*  restore_context(save);
-        */
-        /* Repeat */
         if(equal_val("(")) {
 
             if(sub_ret = data_pic_repeat()) {
@@ -2640,7 +2342,7 @@ ast* data_pic_str()
         }
     }
 
-    debug_2("Rule recognized: data_pic_str \n");
+    debug_2("Reconhecido: data_pic_str \n");
     return ret;
 }
 
@@ -2649,15 +2351,14 @@ ast* data_pic_str()
 ast* data_pic_chars()
 {
 
-    debug_2("Trying to match rule : data_pic_chars \n");
+    debug_2("Tentando casar : data_pic_chars \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
     char chars[120];
 
     if(equal_type("PICCHARS")) {
-        /* si dernier char de picchar est un point alors */
-        /* exiger un point avant la fin de la ligne */
+
         strcpy(chars, get_token_val());
         consume();
     } else {
@@ -2667,7 +2368,7 @@ ast* data_pic_chars()
     ret = make_pic_cmpnt(PIC_CHARS, 0, chars, "");
     strcpy(chars, "");
 
-    debug_2("Rule recognized: data_pic_chars \n");
+    debug_2("Reconhecido: data_pic_chars \n");
 
     return ret;
 }
@@ -2675,7 +2376,7 @@ ast* data_pic_chars()
 ast* data_pic_repeat()
 {
 
-    debug_2("Trying to match rule : data_pic_repeat \n");
+    debug_2("Tentando casar : data_pic_repeat \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -2699,7 +2400,6 @@ ast* data_pic_repeat()
     } else
         return NULL;
 
-    /* picchar hack */
     if(!equal_type("PICCHARS")) {
         erase_context();
         if(equal_type("SPACE")) {
@@ -2709,14 +2409,14 @@ ast* data_pic_repeat()
 
     ret = make_pic_cmpnt(PIC_REPEAT, repeat, "", "");
 
-    debug_2("Rule recognized: data_pic_repeat \n");
+    debug_2("Reconhecido: data_pic_repeat \n");
     return ret;
 }
 
 ast* data_pic_size_local()
 {
 
-    debug_2("Trying to match rule : data_pic_size_local \n");
+    debug_2("Tentando casar : data_pic_size_local \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -2759,10 +2459,9 @@ ast* data_pic_size_local()
                 return NULL;
         }
     }
-    /* clause size and local n'est pas exmploit{ */
     ret = make_ast();
 
-    debug_2("Rule recognized: data_pic_size_local \n");
+    debug_2("Reconhecido: data_pic_size_local \n");
     return ret;
 }
 
@@ -2771,7 +2470,7 @@ ast* data_pic_size_local()
 ast* data_sign_cl()
 {
 
-    debug_2("Trying to match rule : data_sign_cl \n");
+    debug_2("Tentando casar : data_sign_cl \n");
 
     ast* ret = NULL;
     int bool_leading = 0;
@@ -2811,7 +2510,7 @@ ast* data_sign_cl()
     }
 
     ret = make_field_sign(bool_leading, bool_trailing, bool_separate, bool_character);
-    debug_2("Rule recognized: data_sign_cl \n");
+    debug_2("Reconhecido: data_sign_cl \n");
     return ret;
 }
 
@@ -2820,7 +2519,7 @@ ast* data_sign_cl()
 ast* data_value_cl()
 {
 
-    debug_2("Trying to match rule : data_value_cl \n");
+    debug_2("Tentando casar : data_value_cl \n");
 
     ast* ret = NULL;
     ast* sub_ret = NULL;
@@ -2842,7 +2541,7 @@ ast* data_value_cl()
 
     ret = make_field_value(sub_ret, NULL);
 
-    debug_2("Rule recognized: data_value_cl \n");
+    debug_2("Reconhecido: data_value_cl \n");
     return ret;
 }
 
@@ -2851,7 +2550,7 @@ ast* data_value_cl()
 ast* data_sync_cl()
 {
 
-    debug_2("Trying to match rule : data_sync_cl \n");
+    debug_2("Tentando casar : data_sync_cl \n");
 
     ast* ret = NULL;
     int bool_right = 0;
@@ -2877,7 +2576,7 @@ ast* data_sync_cl()
 
     ret = make_field_sync(bool_right, bool_left);
 
-    debug_2("Rule recognized: data_sync_cl \n");
+    debug_2("Reconhecido: data_sync_cl \n");
     return ret;
 }
 
@@ -2886,7 +2585,7 @@ ast* data_sync_cl()
 ast* data_usage_cl()
 {
 
-    debug_2("Trying to match rule : data_usage_cl \n");
+    debug_2("Tentando casar : data_usage_cl \n");
 
     ast* ret = NULL;
     usage_t usage;
@@ -2974,14 +2673,13 @@ ast* data_usage_cl()
 
     ret = make_usage(usage);
 
-    debug_2("Rule recognized: data_usage_cl \n");
+    debug_2("Reconhecido: data_usage_cl \n");
     return ret;
 }
-/*---------------------- renames and conditional function -----------*/
 
 ast* renames_cl()
 {
-    debug_2("Trying to match rule : renames_cl \n");
+    debug_2("Tentando casar : renames_cl \n");
 
     ast* ret = NULL;
     ast* renames_ret = NULL;
@@ -3038,13 +2736,13 @@ ast* renames_cl()
                      NULL,
                      NULL,
                      UNKNOWN_SECTION);
-    debug_2("Rule recognized: renames_cl \n");
+    debug_2("Reconhecido: renames_cl \n");
     return ret;
 }
 
 ast* cond_val_cl()
 {
-    debug_2("Trying to match rule : cond_val_cl \n");
+    debug_2("Tentando casar : cond_val_cl \n");
 
     ast* ret = NULL;
     ast* field_value_ret = NULL;
@@ -3110,7 +2808,7 @@ ast* cond_val_cl()
                      NULL,
                      UNKNOWN_SECTION);
 
-    debug_2("Rule recognized: cond_val_cl \n");
+    debug_2("Reconhecido: cond_val_cl \n");
     return ret;
 }
 
@@ -3121,7 +2819,7 @@ ast* cond_val_cl()
 ast* copy_replacing()
 {
 
-    debug_3("Trying to match rule : %s \n", __FUNCTION__);
+    debug_3("Tentando casar : %s \n", __FUNCTION__);
 
     ast* ret = NULL;
     ast* copy_ret = NULL;
@@ -3144,16 +2842,13 @@ ast* copy_replacing()
 
     } else
         return NULL;
-
-    // optional qualifier
+		
     if(equal_val("OF") || equal_val("IN")) {
         consume();
 
-        // text-name
         if(lib_ret = id_name()) {
             ;
 
-            // or literal
         } else if(equal_attr("ALPHANUMERIC")) {
 
             lib_ret = litr();
@@ -3162,31 +2857,16 @@ ast* copy_replacing()
             return NULL;
     }
 
-    // optional suppress
     if(equal_val("SUPPRESS")) {
         consume();
     }
 
-    /*
-    if (equal_val("REPLACING")){
-
-       if(intlz_rplc()){
-           bool_rplc =1;
-       }
-       else return NULL;
-
-    }
-
-    ret = make_initialize(bool_rplc,0,sub_ret);
-    */
-    debug_2("Rule recognized: %s \n", __FUNCTION__);
+    debug_2("Reconhecido: %s \n", __FUNCTION__);
 
     return ret;
 }
 
-/*---------------------- Context function    ------------------------*/
-
-int affich_context()
+int show__context()
 {
 
     debug_2("context.division : <%s>\n", _context.division);
@@ -3214,7 +2894,7 @@ context set_context(char* clause)
         _context.other = "";
     }
 
-    affich_context();
+    show__context();
 
     return save;
 }
@@ -3224,12 +2904,11 @@ int restore_context(context save)
 
     _context = save;
 
-    affich_context();
+    show__context();
 
     return 1;
 }
 
-/*---------------------- Functions for permutation -----------------*/
 fp_t_nod* alim_clauses()
 {
 
@@ -3479,128 +3158,8 @@ fp_t_nod* alim_clauses()
     /**/
     i++;
 
-    /*--------------------------------------------------*/
-    /*                                                  */
-    /*--------------------------------------------------*/
-    /*
-    printf("Start for linked list building from array ...(%d)\n",i);
-
-    fp_t_nod* temp;
-
-    fp_t_nod* node = malloc (sizeof (fp_t_nod));
-    node->val      = clauses_arr[0];
-    clauses = node;
-
-    temp = clauses->next;
-
-    for(j=1;j<i;j++){
-
-       printf("iteration (%d) \n",j+1);
-       if (temp == NULL) {
-          temp = malloc (sizeof (fp_t_nod));
-          printf("malloc done \n");
-       }
-
-       temp->val  = clauses_arr[j];
-       temp->next = NULL;
-
-       clause_print(temp->val,"temp->val");
-
-
-       clause_nod_print(temp,"temp->val");
-       temp = temp->next;
-
-       printf("Creation done \n");
-
-    }
-    */
     return head;
 }
-/*
-int alim_clause_arr(fp_t_arr clauses){
-
-    printf("alim_clause_arr : Start \n");
-
-    int i=0;
-    int j=0;
-
-    if (clause_arr == NULL) {
-       clause_arr = malloc(MAX_FUNCTIONS*sizeof(fp_t));
-       printf("alim_clause_arr : allocation of MAX_FUNCTIONS size \n");
-       for(i=0;i<MAX_FUNCTIONS;i++){
-          (clause_arr+i)->cond_1 = malloc(MAX_COND*sizeof(char*));
-          (clause_arr+i)->cond_2 = malloc(MAX_COND*sizeof(char*));
-       }
-    }
-    printf("alim_clause_arr : allocation of MAX_COND size \n");
-    printf("sizeof(clause_arr) malloc : (%d) \n",sizeof(*clause_arr));
-
-    i = 0;
-    j = 0;
-
-    (clause_arr+i)->id = 1;
-    (clause_arr+i)->fp = data_external_cl;
-    *(((clause_arr+i)->cond_1)+j) = "IS"; j++;
-    printf("alim_clause_arr : alimentation of cond_1 \n");
-    realloc((clause_arr+i)->cond_1,j*sizeof(char*)); j=0;
-    printf("alim_clause_arr : allocation of j size for cond_1 \n");
-    *(((clause_arr+i)->cond_2)+j) = "EXTERNAL"; j++;
-    printf("alim_clause_arr : alimentation of cond_2 \n");
-    realloc((clause_arr+i)->cond_2,j*sizeof(char*)); j=0;
-    printf("alim_clause_arr : allocation of j size for cond_2 \n");
-    i++;
-    printf("alim_clause_arr : Succesful insertion of clause  1 \n");
-
-    (clause_arr+i)->id = 2;
-    (clause_arr+i)->fp = data_external_cl;
-    *(((clause_arr+i)->cond_1)+j) = "BLANK"; j=0;
-    realloc((clause_arr+i)->cond_1,j*sizeof(char*)); j=0;
-    realloc((clause_arr+i)->cond_2,j*sizeof(char*)); j=0;
-    i++;
-    printf("alim_clause_arr : Succesful insertion of clause  2 \n");
-
-    (clause_arr+i)->id = 3;
-    (clause_arr+i)->fp = data_global_cl;
-    *(((clause_arr+i)->cond_1)+j) = "IS"; j++;
-    realloc((clause_arr+i)->cond_1,j*sizeof(char*)); j=0;
-    *(((clause_arr+i)->cond_2)+j) = "GLOBAL"; j++;
-    realloc((clause_arr+i)->cond_2,j*sizeof(char*)); j=0;
-    i++;
-    printf("alim_clause_arr : Succesful insertion of clause  3 \n");
-
-    (clause_arr+i)->id = 4;
-    (clause_arr+i)->fp = data_just_cl;
-    *(((clause_arr+i)->cond_1)+j) = "JUST"; j++;
-    *(((clause_arr+i)->cond_1)+j) = "JUSTIFIED"; j++;
-    realloc((clause_arr+i)->cond_1,j*sizeof(char*)); j=0;
-    *(((clause_arr+i)->cond_2)+j) = "GLOBAL"; j++;
-    realloc((clause_arr+i)->cond_2,j*sizeof(char*)); j=0;
-    i++;
-    printf("alim_clause_arr : Succesful insertion of clause  4 \n");
-
-    (clause_arr+i)->id = 5;
-    (clause_arr+i)->fp = data_occurs_cl;
-    *(((clause_arr+i)->cond_1)+j) = "OCCURS"; j++;
-    realloc((clause_arr+i)->cond_1,j*sizeof(char*)); j=0;
-    realloc((clause_arr+i)->cond_2,j*sizeof(char*)); j=0;
-    i++;
-    printf("alim_clause_arr : Succesful insertion of clause  5 \n");
-
-    fp_t *temp = realloc(clause_arr,i*sizeof(fp_t));
-
-    if (temp == NULL){
-       printf("Error allocating memory!\n");
-       return 0;
-    }
-    else {
-       clause_arr = temp;
-       printf("Succesful reallocation!\n");
-    printf("sizeof(clause_arr) realloc : (%d) \n",sizeof(*clause_arr));
-    }
-    return 1;
-
-}
-*/
 
 int tkn_in_array(str_arr conditions)
 {
@@ -3628,13 +3187,11 @@ fp_t_nod* delete_clauses(fp_t_nod* clauses, fp_t_nod* to_delete)
                            clauses ,      to_delete);
 */ fp_t_nod* temp;
 
-    /* list is empty */
     if(clauses == NULL) {
         debug_3("delete_clauses : List is empty no destroying to do. \n");
         return clauses;
     }
 
-    /* node to delete is the head of list */
     if(clauses == to_delete) {
         debug_3("delete_clauses : Beheading the List >:) ... \n");
         temp = clauses->next;
@@ -3642,21 +3199,16 @@ fp_t_nod* delete_clauses(fp_t_nod* clauses, fp_t_nod* to_delete)
         return temp;
     }
 
-    /* when other */
-    /* tout pointer vers head of list */
     temp = clauses;
     fp_t_nod* beforeTemp = clauses;
 
-    /* refaire tant qu'on est pas à null (fin liste) */
     while(temp != NULL) {
 
-        /* si adresse d'element a supprimer trouver */
         if(temp == to_delete) {
             debug_3("delete_clauses : node found, destroying ... \n");
-            /* pointer le next du maillon d'avant vers celui d'apres */
-            /* c-a-d : skip temp */
+
             beforeTemp->next = temp->next;
-            /* liberer element a supprimer */
+			
             free(temp);
             return clauses;
         }
@@ -3666,56 +3218,6 @@ fp_t_nod* delete_clauses(fp_t_nod* clauses, fp_t_nod* to_delete)
     }
 }
 
-int clause_print(fp_t clause, char* txt)
-{
-
-    int i = 0;
-    txt = "";
-    printf("clause.id           :(%d)\n", clause.id);
-    printf("clause.cond_1.len   :(%d)\n", clause.cond_1.len);
-    for(i = 0; i < clause.cond_1.len; i++)
-        printf("clause.cond_1.arr(%d):(%s)\n", i, clause.cond_1.arr[i]);
-    printf("clause.cond_2.len   :(%d)\n", clause.cond_2.len);
-    for(i = 0; i < clause.cond_2.len; i++)
-        printf("clause.cond_2.arr(%d):(%s)\n", i, clause.cond_2.arr[i]);
-
-    return 1;
-}
-
-int clause_nod_print(fp_t_nod* clause_nod, char* txt)
-{
-
-    printf("*************************************\n");
-    printf("* Current * clause_nod       (%d) ***\n", clause_nod);
-    printf("* Next    * clause_nod->next (%d) ***\n", clause_nod->next);
-    clause_print(clause_nod->val, txt);
-    printf("*************************************\n");
-
-    return 1;
-}
-
-int print_clauses(fp_t_nod* clauses)
-{
-
-    printf("printf_clauses Start...\n\n");
-
-    fp_t_nod* iterator = clauses;
-
-    do {
-
-        clause_nod_print(iterator, "");
-        iterator = iterator->next;
-        /* assert(iterator == NULL); */
-
-    } while(iterator != NULL);
-
-    printf("printf_clauses End.\n");
-    return 1;
-}
-
-/*---------------------- Build AST from attr ------------------------*/
-/* cette fonction peut etre remplacer par un simple make_literal */
-/* avec en parametres les equal_attr comme des int */
 ast* build_literal(int bool_all)
 {
 
@@ -3870,79 +3372,6 @@ int consume()
 
     return 1;
 }
-/*----*/
-int error(char* msg)
-{
-
-    printf("error : %s", msg);
-    exit(EXIT_FAILURE);
-}
-
-/*----*/
-
-int match(char* terminal)
-{
-    printf("match()    : Trying to match token : <%s> \n", terminal);
-
-    /*
-    if    ((strcasecmp(lookahead.tkn_val,  "ZERO") == 0 )
-        && (strcasecmp(lookahead.tkn_type, "ZERO") == 0 )
-        && (strcasecmp(lookahead.tkn_type2,"ZERO") == 0 ) )
-    {
-        printf("match()    : Lookahead ZERO, Get next token");
-        lookahead = getNextToken();
-
-    }  */
-
-    if((strcasecmp(lookahead.tkn_val, terminal) == 0) || (strcasecmp(lookahead.tkn_type, terminal) == 0) ||
-       (strcasecmp(lookahead.tkn_attr[0], terminal) == 0) || (strcasecmp(lookahead.tkn_attr[1], terminal) == 0)) {
-        printf("match()    : Token recognized : %s \n", terminal);
-        /* mettre lookahead a zero en attendant le chargement de context */
-        /*  lookahead.tkn_val    = "ZERO";
-            lookahead.tkn_type   = "ZERO";
-            lookahead.tkn_type2  = "ZERO"; */
-
-        lookahead = getNextToken();
-
-    } else {
-        printf(
-            "match()    : Syntax error expected %s found<%s><%s>\n", terminal, lookahead.tkn_type, lookahead.tkn_val);
-        return 0;
-    }
-    return 1;
-}
-
-/*------*/
-
-int tknEqual(char* expected)
-{
-    /*  printf("tknEqual() : is Current token equal to:<%s>? \n",expected);
-*/ /*
-                                                                                                                                                                                                                               if    ((strcasecmp(lookahead.tkn_val,
-                                                                                                                                                                                                                               "ZERO") == 0 )
-                                                                                                                                                                                                                                   && (strcasecmp(lookahead.tkn_type,
-                                                                                                                                                                                                                               "ZERO") == 0 )
-                                                                                                                                                                                                                                   &&
-                                                                                                                                                                                                                               (strcasecmp(lookahead.tkn_type2,"ZERO") ==
-                                                                                                                                                                                                                               0 ) )
-                                                                                                                                                                                                                               {
-                                                                                                                                                                                                                                   printf("match()    : Lookahead ZERO,
-                                                                                                                                                                                                                               Get next token");
-                                                                                                                                                                                                                                   lookahead = getNextToken();
-
-                                                                                                                                                                                                                               }
-                                                                                                                                                                                                                               */
-    if((strcasecmp(lookahead.tkn_val, expected) == 0) || (strcasecmp(lookahead.tkn_type, expected) == 0) ||
-       (strcasecmp(lookahead.tkn_attr[0], expected) == 0) || (strcasecmp(lookahead.tkn_attr[1], expected) == 0)) {
-        printf("tknEqual() : Current token == to <%s> \n", expected);
-        return 1;
-
-    } else {
-        /*  printf("tknEqual() : Current token != to <%s> \n",expected);*/
-        return 0;
-    }
-}
-/*------------------------- Auxiliary functions ---------------------*/
 
 char* get_token_val()
 {
@@ -3953,6 +3382,7 @@ char* get_token_type()
 {
     return lookahead.tkn_type;
 }
+
 int get_token_len()
 {
     return lookahead.tkn_len;
