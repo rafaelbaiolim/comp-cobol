@@ -1,5 +1,5 @@
 # comp-cobol
-Repositório Destinado ao sofrimento e lamentação de um compilador de COBOL em desenvolvimento (COMP - INFO - 2016)
+Repositório Destinado a um compilador de COBOL (COMP - INFO - 2016)
 
 - Instalação OpenCobol + IDE no Linux (Distribuiçoes Ubuntu/Debians): 
 
